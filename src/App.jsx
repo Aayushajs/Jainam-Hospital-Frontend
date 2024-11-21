@@ -23,7 +23,7 @@ const App = () => {
           "https://jainam-hospital-backend.onrender.com/api/v1/user/patient/me",
           {
             withCredentials: true,
-            headers: { Authorization: `Bearer ${token}` },
+            
             }
         );
         setIsAuthenticated(true);
