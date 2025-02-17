@@ -13,7 +13,6 @@ const Navbar = () => {
     await axios.get("https://jainam-hospital-backend.onrender.com/api/v1/user/patient/logout", {
         withCredentials: true,
         
-          headers: { Authorization: `Bearer ${token}` },
       })
       .then((res) => {
         toast.success(res.data.message);

@@ -14,7 +14,7 @@ const Login = () => {
   const navigateTo = useNavigate();
 
   const handleLogin = async (e) => {
-    e.preventDefault();
+    e.preventDefault(); 
     try {
       await axios
         .post(
