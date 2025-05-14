@@ -13,8 +13,7 @@ const AppointmentForm = () => {
   const [gender, setGender] = useState("");
   const [appointmentDate, setAppointmentDate] = useState("");
   const [department, setDepartment] = useState("Pediatrics");
-  const [doctorFirstName, setDoctorFirstName] = useState("");
-  const [doctorLastName, setDoctorLastName] = useState("");
+  const [doctorId, setDoctorId] = useState("");
   const [address, setAddress] = useState("");
   const [hasVisited, setHasVisited] = useState(false);
 
@@ -31,21 +30,39 @@ const AppointmentForm = () => {
   ];
 
   const [doctors, setDoctors] = useState([]);
+  const [filteredDoctors, setFilteredDoctors] = useState([]);
+
   useEffect(() => {
     const fetchDoctors = async () => {
       const { data } = await axios.get(
+        //"http://localhost:4000/api/v1/user/doctors",
         "https://jainam-hospital-backend.onrender.com/api/v1/user/doctors",
         { withCredentials: true }
       );
       setDoctors(data.doctors);
-      console.log(data.doctors);
     };
     fetchDoctors();
   }, []);
+
+  useEffect(() => {
+    if (department) {
+      const filtered = doctors.filter(
+        (doctor) => doctor.doctorDepartment === department
+      );
+      setFilteredDoctors(filtered);
+      setDoctorId(""); // Reset doctor selection when department changes
+    }
+  }, [department, doctors]);
+
   const handleAppointment = async (e) => {
     e.preventDefault();
     try {
-      const hasVisitedBool = Boolean(hasVisited);
+      const selectedDoctor = doctors.find(doc => doc._id === doctorId);
+      
+      if (!selectedDoctor) {
+        throw new Error("Please select a doctor");
+      }
+
       const { data } = await axios.post(
         "https://jainam-hospital-backend.onrender.com/api/v1/appointment/post",
         {
@@ -58,9 +75,10 @@ const AppointmentForm = () => {
           gender,
           appointment_date: appointmentDate,
           department,
-          doctor_firstName: doctorFirstName,
-          doctor_lastName: doctorLastName,
-          hasVisited: hasVisitedBool,
+          doctor_firstName: selectedDoctor.firstName,
+          doctor_lastName: selectedDoctor.lastName,
+          doctorId,
+          hasVisited,
           address,
         },
         {
@@ -68,22 +86,23 @@ const AppointmentForm = () => {
           headers: { "Content-Type": "application/json" },
         }
       );
+      
       toast.success(data.message);
-      setFirstName(""),
-        setLastName(""),
-        setEmail(""),
-        setPhone(""),
-        setNic(""),
-        setDob(""),
-        setGender(""),
-        setAppointmentDate(""),
-        setDepartment(""),
-        setDoctorFirstName(""),
-        setDoctorLastName(""),
-        setHasVisited(""),
-        setAddress("");
+      // Reset form
+      setFirstName("");
+      setLastName("");
+      setEmail("");
+      setPhone("");
+      setNic("");
+      setDob("");
+      setGender("");
+      setAppointmentDate("");
+      setDepartment("Pediatrics");
+      setDoctorId("");
+      setAddress("");
+      setHasVisited(false);
     } catch (error) {
-      toast.error(error.response.data.message);
+      toast.error(error.response?.data?.message || error.message);
     }
   };
 
@@ -150,11 +169,7 @@ const AppointmentForm = () => {
           <div>
             <select
               value={department}
-              onChange={(e) => {
-                setDepartment(e.target.value);
-                setDoctorFirstName("");
-                setDoctorLastName("");
-              }}
+              onChange={(e) => setDepartment(e.target.value)}
             >
               {departmentsArray.map((depart, index) => {
                 return (
@@ -165,49 +180,40 @@ const AppointmentForm = () => {
               })}
             </select>
             <select
-              value={`${doctorFirstName} ${doctorLastName}`}
-              onChange={(e) => {
-                const [firstName, lastName] = e.target.value.split(" ");
-                setDoctorFirstName(firstName);
-                setDoctorLastName(lastName);
-              }}
+              value={doctorId}
+              onChange={(e) => setDoctorId(e.target.value)}
               disabled={!department}
             >
               <option value="">Select Doctor</option>
-              {doctors
-                .filter((doctor) => doctor.doctorDepartment === department)
-                .map((doctor, index) => (
-                  <option
-                    value={`${doctor.firstName} ${doctor.lastName}`}
-                    key={index}
-                  >
-                    {doctor.firstName} {doctor.lastName}
-                  </option>
-                ))}
+              {filteredDoctors.map((doctor) => (
+                <option value={doctor._id} key={doctor._id}>
+                  {doctor.firstName} {doctor.lastName}
+                </option>
+              ))}
             </select>
           </div>
-          <textarea
-            rows="10"
-            value={address}
-            onChange={(e) => setAddress(e.target.value)}
-            placeholder="Address"
-          />
-          <div
-            style={{
-              gap: "10px",
-              justifyContent: "flex-end",
-              flexDirection: "row",
-            }}
-          >
-            <p style={{ marginBottom: 0 }}>Have you visited before?</p>
-            <input
-              type="checkbox"
-              checked={hasVisited}
-              onChange={(e) => setHasVisited(e.target.checked)}
-              style={{ flex: "none", width: "25px" }}
+            <textarea
+              rows="10"
+              value={address}
+              onChange={(e) => setAddress(e.target.value)}
+              placeholder="Address"
             />
-          </div>
-          <button style={{ margin: "0 auto" }}>GET APPOINTMENT</button>
+            <div
+              style={{
+                gap: "10px",
+                justifyContent: "flex-end",
+                flexDirection: "row",
+              }}
+            >
+              <p style={{ marginBottom: 0 }}>Have you visited before?</p>
+              <input
+                type="checkbox"
+                checked={hasVisited}
+                onChange={(e) => setHasVisited(e.target.checked)}
+                style={{ flex: "none", width: "25px" }}
+              />
+            </div>
+            <button style={{ margin: "0 auto" }}>GET APPOINTMENT</button>
         </form>
       </div>
     </>

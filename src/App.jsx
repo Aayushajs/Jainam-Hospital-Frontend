@@ -12,6 +12,23 @@ import "react-toastify/dist/ReactToastify.css";
 import axios from "axios";
 import { Context } from "./main";
 import Login from "./Pages/Login";
+import { ThemeProvider, createTheme } from '@mui/material/styles';
+
+const theme = createTheme({
+  palette: {
+    primary: {
+      main: '#0369a1',
+      dark: '#0284c7',
+    },
+    secondary: {
+      main: '#00bcd4',
+    },
+    background: {
+      default: '#f8fafc',
+      paper: '#ffffff',
+    },
+  },
+});
 const App = () => {
   const { isAuthenticated, setIsAuthenticated, setUser } =
     useContext(Context);
@@ -21,6 +38,7 @@ const App = () => {
       try {
         const response = await axios.get(
           "https://jainam-hospital-backend.onrender.com/api/v1/user/patient/me",
+          //"http://localhost:4000/api/v1/user/patient/me",
           {
             withCredentials: true,
             
@@ -38,6 +56,7 @@ const App = () => {
 
   return (
     <>
+      <ThemeProvider theme={theme}>
       <Router>
         <Navbar />
         <Routes>
@@ -50,6 +69,7 @@ const App = () => {
         <Footer />
         <ToastContainer position="top-center" />
       </Router>
+      </ThemeProvider>
     </>
   );
 };
