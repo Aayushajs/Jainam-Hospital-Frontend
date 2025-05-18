@@ -10,6 +10,7 @@ import {
   Divider,
   Button
 } from "@mui/material";
+import FloatingButton from "../components/FloatingButton";
 import { 
   Healing, 
   EmojiPeople, 
@@ -130,13 +131,13 @@ const AboutUs = () => {
     },
     {
       title: "Innovative Solutions",
-      description: "We integrate cutting-edge technology and research to provide advanced treatments.",
+      description:"We prioritize your needs, preferences and values in every decision about your health and treatment. ",
       icon: <Science />,
       color: 'info'
     },
     {
       title: "Collaborative Approach",
-      description: "Our multidisciplinary teams work together to develop comprehensive treatment plans.",
+      description: "Our multidisciplinary teams work together to develop comprehensive treatment plans.We prioritize your",
       icon: <Groups />,
       color: 'success'
     }
@@ -160,7 +161,7 @@ const AboutUs = () => {
   return (
     <Box>
       {/* Hero Section */}
-      <SectionContainer bgColor="primary.dark" py={15}>
+      <SectionContainer bgColor="primary.dark" py={18}>
         <Container maxWidth="lg">
           <Box sx={{ 
             textAlign: 'center',
@@ -287,18 +288,18 @@ const AboutUs = () => {
       <GradientSection>
         <SectionContainer>
           <Container maxWidth="lg">
-            <Box sx={{ textAlign: 'center', mb: 8 }}>
+            <Box sx={{ textAlign: 'center', mb: 4  }}>
               <Typography variant="h2" component="h2" sx={{ 
                 fontWeight: 700,
-                mb: 2,
-                color: 'primary.contrastText'
+                mb: 1,
+                color: 'secondary.main'
               }}>
                 Our Mission & Values
               </Typography>
               <Typography variant="h6" component="p" sx={{ 
                 maxWidth: 700,
                 mx: 'auto',
-                color: 'primary.contrastText',
+                color: 'black',
                 opacity: 0.9
               }}>
                 Guiding principles that shape every aspect of our care
@@ -326,15 +327,16 @@ const AboutUs = () => {
                   width: 80, 
                   height: 80,
                   mr: { md: 4 },
+                  mt: -7,
                   mb: { xs: 3, md: 0 }
                 }}>
                   <Healing fontSize="large" />
                 </Avatar>
                 <Box>
-                  <Typography variant="h4" component="h3" gutterBottom sx={{ fontWeight: 600, color: 'primary.contrastText' }}>
+                  <Typography variant="h4" component="h3" gutterBottom sx={{ fontWeight: 600, color: 'black',  }}>
                     Our Commitment to You
                   </Typography>
-                  <Typography color="primary.contrastText" sx={{ opacity: 0.9 }}>
+                  <Typography color="secondary.main" sx={{ opacity: 0.9 }}>
                     Every patient receives personalized, comprehensive care from our multidisciplinary team of specialists working together to achieve the best possible outcomes.
                   </Typography>
                 </Box>
@@ -350,6 +352,7 @@ const AboutUs = () => {
           <Typography variant="h2" component="h2" sx={{ 
             fontWeight: 700,
             mb: 2,
+            mt: -7,
             textAlign: 'center'
           }}>
             Our Journey
@@ -415,6 +418,7 @@ const AboutUs = () => {
           </Box>
         </Container>
       </SectionContainer>
+      <FloatingButton />
     </Box>
   );
 };

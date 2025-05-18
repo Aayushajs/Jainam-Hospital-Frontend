@@ -11,6 +11,7 @@ import {
   FaPhoneAlt,
   FaMapMarkerAlt,
 } from "react-icons/fa";
+import FloatingButton from "../components/FloatingButton";
 
 // Animations
 const float = keyframes`
@@ -446,6 +447,7 @@ useEffect(() => {
         </InfoPanel>
         
       </AppointmentContainer>
+      <FloatingButton/>
     </PageWrapper>
   );
 };
