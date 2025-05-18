@@ -43,18 +43,22 @@ const Login = () => {
         }
       );
       
-      toast.success(response.data.message);
-      setIsAuthenticated(true);
-      navigateTo("/");
-      setEmail("");
-      setPassword("");
-      setConfirmPassword("");
-    } catch (error) {
-      toast.error(error.response?.data?.message || "Login failed");
-    } finally {
-      setLoading(false);
-    }
-  };
+         toast.success(response.data.message);
+
+    // 🔥 STORE USER IN localStorage
+    const user = response.data.user;
+    localStorage.setItem("user", JSON.stringify(user));
+    setIsAuthenticated(true);
+    navigateTo("/");
+    setEmail("");
+    setPassword("");
+    setConfirmPassword("");
+  } catch (error) {
+    toast.error(error.response?.data?.message || "Login failed");
+  } finally {
+    setLoading(false);
+  }
+};
 
   if (isAuthenticated) {
     return <Navigate to={"/"} />;

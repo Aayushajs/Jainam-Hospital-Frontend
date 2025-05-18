@@ -186,7 +186,7 @@ const MessageForm = () => {
   };
 
   return (
-    <Container maxWidth="md" sx={{ py: 3 }}>
+    <Container maxWidth="md" sx={{ py: 3  }}>
       <GradientPaper elevation={0} sx={{ p: { xs: 3, md: 5 } }}>
         <Box textAlign="center" mb={5}>
           <Typography

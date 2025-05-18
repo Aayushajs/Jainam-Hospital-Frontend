@@ -6,6 +6,14 @@
  
   font-family: "Montserrat", sans-serif;
 }
+body.dark-mode {
+  background-color: #121212;
+  color: #5e7eb0;
+}
+
+body.dark-mode a {
+  color: #5e7eb0;
+}
 body {
   background: #e5e5e5;
 }

@@ -3,6 +3,7 @@
   import Biography from "../components/Biography";
   import MessageForm from "../components/MessageForm";
   import Departments from "../components/Departments";
+  import FloatingButton from "../components/FloatingButton.jsx";
 
 
   import CTA from "../components/CTA.jsx";
@@ -47,6 +48,7 @@
           ctaLink="/departments"
         />
 
+        <FloatingButton />  
       
         {/* CTA Section */}
         <CTA
@@ -57,7 +59,6 @@
           secondaryButtonText="Learn More"
           secondaryButtonLink="/about"
         />
-
         {/* Message Form Section */}
         <MessageForm 
           title="Have Questions? Contact Us"

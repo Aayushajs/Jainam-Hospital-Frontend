@@ -1,222 +1,415 @@
 import axios from "axios";
-import React, { useEffect } from "react";
-import { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { toast } from "react-toastify";
+import { FaCalendarAlt, FaUserMd } from "react-icons/fa";
 
-const AppointmentForm = () => {
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [email, setEmail] = useState("");
-  const [phone, setPhone] = useState("");
-  const [nic, setNic] = useState("");
-  const [dob, setDob] = useState("");
-  const [gender, setGender] = useState("");
-  const [appointmentDate, setAppointmentDate] = useState("");
-  const [department, setDepartment] = useState("Pediatrics");
-  const [doctorId, setDoctorId] = useState("");
-  const [address, setAddress] = useState("");
-  const [hasVisited, setHasVisited] = useState(false);
+const AppointmentForm = ({ patientId }) => {
+  // Form state
+  const [formData, setFormData] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    phone: "",
+    nic: "",
+    dob: "",
+    gender: "",
+    appointmentDate: "",
+    department: "Pediatrics",
+    doctorId: "",
+    address: "",
+    hasVisited: false
+  });
 
-  const departmentsArray = [
-    "Pediatrics",
-    "Orthopedics",
-    "Cardiology",
-    "Neurology",
-    "Oncology",
-    "Radiology",
-    "Physical Therapy",
-    "Dermatology",
-    "ENT",
-  ];
-
+  // Data state
   const [doctors, setDoctors] = useState([]);
   const [filteredDoctors, setFilteredDoctors] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
 
+  // Departments list
+  const departmentsArray = [
+    "Pediatrics", "Orthopedics", "Cardiology", "Neurology", "Oncology",
+    "Radiology", "Physical Therapy", "Dermatology", "ENT",
+  ];
+
+  // Fetch doctors list
   useEffect(() => {
     const fetchDoctors = async () => {
-      const { data } = await axios.get(
-        //"http://localhost:4000/api/v1/user/doctors",
-        "https://jainam-hospital-backend.onrender.com/api/v1/user/doctors",
-        { withCredentials: true }
-      );
-      setDoctors(data.doctors);
+      try {
+        const { data } = await axios.get(
+          "https://jainam-hospital-backend.onrender.com/api/v1/user/doctors",
+          { withCredentials: true }
+        );
+        setDoctors(data.doctors);
+      } catch (error) {
+        toast.error("Failed to fetch doctors list");
+      }
     };
     fetchDoctors();
   }, []);
 
+  // Filter doctors by department
   useEffect(() => {
-    if (department) {
+    if (formData.department) {
       const filtered = doctors.filter(
-        (doctor) => doctor.doctorDepartment === department
+        (doctor) => doctor.doctorDepartment === formData.department
       );
       setFilteredDoctors(filtered);
-      setDoctorId(""); // Reset doctor selection when department changes
+      setFormData(prev => ({ ...prev, doctorId: "" }));
     }
-  }, [department, doctors]);
+  }, [formData.department, doctors]);
 
+  // Handle form input changes
+  const handleChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: type === 'checkbox' ? checked : value
+    }));
+  };
+
+  // Handle form submission
   const handleAppointment = async (e) => {
     e.preventDefault();
+    setIsLoading(true);
+
     try {
-      const selectedDoctor = doctors.find(doc => doc._id === doctorId);
-      
-      if (!selectedDoctor) {
+      // Validate required fields
+      if (!formData.doctorId) {
         throw new Error("Please select a doctor");
+      }
+
+      const selectedDoctor = doctors.find(doc => doc._id === formData.doctorId);
+      if (!selectedDoctor) {
+        throw new Error("Selected doctor not found");
       }
 
       const { data } = await axios.post(
         "https://jainam-hospital-backend.onrender.com/api/v1/appointment/post",
         {
-          firstName,
-          lastName,
-          email,
-          phone,
-          nic,
-          dob,
-          gender,
-          appointment_date: appointmentDate,
-          department,
+          ...formData,
+          appointment_date: formData.appointmentDate,
           doctor_firstName: selectedDoctor.firstName,
           doctor_lastName: selectedDoctor.lastName,
-          doctorId,
-          hasVisited,
-          address,
         },
         {
           withCredentials: true,
           headers: { "Content-Type": "application/json" },
         }
       );
-      
+
       toast.success(data.message);
+      
       // Reset form
-      setFirstName("");
-      setLastName("");
-      setEmail("");
-      setPhone("");
-      setNic("");
-      setDob("");
-      setGender("");
-      setAppointmentDate("");
-      setDepartment("Pediatrics");
-      setDoctorId("");
-      setAddress("");
-      setHasVisited(false);
+      setFormData({
+        firstName: "",
+        lastName: "",
+        email: "",
+        phone: "",
+        nic: "",
+        dob: "",
+        gender: "",
+        appointmentDate: "",
+        department: "Pediatrics",
+        doctorId: "",
+        address: "",
+        hasVisited: false
+      });
     } catch (error) {
       toast.error(error.response?.data?.message || error.message);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
-    <>
-      <div className="container form-component appointment-form">
-        <h2>Appointment</h2>
+    <div className="appointment-form-container">
+      <div className="appointment-form">
+        <div className="section-header">
+          <h2>Book New Appointment</h2>
+          <p>Fill in your details to schedule an appointment</p>
+        </div>
+        
         <form onSubmit={handleAppointment}>
-          <div>
-            <input
-              type="text"
-              placeholder="First Name"
-              value={firstName}
-              onChange={(e) => setFirstName(e.target.value)}
-            />
-            <input
-              type="text"
-              placeholder="Last Name"
-              value={lastName}
-              onChange={(e) => setLastName(e.target.value)}
-            />
-          </div>
-          <div>
-            <input
-              type="text"
-              placeholder="Email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
-            <input
-              type="number"
-              placeholder="Mobile Number"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-            />
-          </div>
-          <div>
-            <input
-              type="number"
-              placeholder="NIC"
-              value={nic}
-              onChange={(e) => setNic(e.target.value)}
-            />
-            <input
-              type="date"
-              placeholder="Date of Birth"
-              value={dob}
-              onChange={(e) => setDob(e.target.value)}
-            />
-          </div>
-          <div>
-            <select value={gender} onChange={(e) => setGender(e.target.value)}>
-              <option value="">Select Gender</option>
-              <option value="Male">Male</option>
-              <option value="Female">Female</option>
-            </select>
-            <input
-              type="date"
-              placeholder="Appointment Date"
-              value={appointmentDate}
-              onChange={(e) => setAppointmentDate(e.target.value)}
-            />
-          </div>
-          <div>
-            <select
-              value={department}
-              onChange={(e) => setDepartment(e.target.value)}
-            >
-              {departmentsArray.map((depart, index) => {
-                return (
-                  <option value={depart} key={index}>
-                    {depart}
-                  </option>
-                );
-              })}
-            </select>
-            <select
-              value={doctorId}
-              onChange={(e) => setDoctorId(e.target.value)}
-              disabled={!department}
-            >
-              <option value="">Select Doctor</option>
-              {filteredDoctors.map((doctor) => (
-                <option value={doctor._id} key={doctor._id}>
-                  {doctor.firstName} {doctor.lastName}
-                </option>
-              ))}
-            </select>
-          </div>
-            <textarea
-              rows="10"
-              value={address}
-              onChange={(e) => setAddress(e.target.value)}
-              placeholder="Address"
-            />
-            <div
-              style={{
-                gap: "10px",
-                justifyContent: "flex-end",
-                flexDirection: "row",
-              }}
-            >
-              <p style={{ marginBottom: 0 }}>Have you visited before?</p>
-              <input
-                type="checkbox"
-                checked={hasVisited}
-                onChange={(e) => setHasVisited(e.target.checked)}
-                style={{ flex: "none", width: "25px" }}
+          <div className="form-grid">
+            {/* Personal Information */}
+            <div className="form-group">
+              <label>First Name*</label>
+              <input 
+                type="text" 
+                name="firstName"
+                value={formData.firstName}
+                onChange={handleChange}
+                required
               />
             </div>
-            <button style={{ margin: "0 auto" }}>GET APPOINTMENT</button>
+            
+            <div className="form-group">
+              <label>Last Name*</label>
+              <input 
+                type="text" 
+                name="lastName"
+                value={formData.lastName}
+                onChange={handleChange}
+                required
+              />
+            </div>
+            
+            <div className="form-group">
+              <label>Email*</label>
+              <input 
+                type="email" 
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                required
+              />
+            </div>
+            
+            <div className="form-group">
+              <label>Phone*</label>
+              <input 
+                type="tel" 
+                name="phone"
+                value={formData.phone}
+                onChange={handleChange}
+                required
+              />
+            </div>
+            
+            <div className="form-group">
+              <label>NIC*</label>
+              <input 
+                type="text" 
+                name="nic"
+                value={formData.nic}
+                onChange={handleChange}
+                required
+              />
+            </div>
+            
+            <div className="form-group">
+              <label>Date of Birth*</label>
+              <input 
+                type="date" 
+                name="dob"
+                value={formData.dob}
+                onChange={handleChange}
+                required
+              />
+            </div>
+            
+            <div className="form-group">
+              <label>Gender*</label>
+              <select 
+                name="gender"
+                value={formData.gender}
+                onChange={handleChange}
+                required
+              >
+                <option value="">Select Gender</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+            
+            {/* Appointment Details */}
+            <div className="form-group">
+              <label>Appointment Date*</label>
+              <input 
+                type="date" 
+                name="appointmentDate"
+                value={formData.appointmentDate}
+                onChange={handleChange}
+                min={new Date().toISOString().split('T')[0]}
+                required
+              />
+            </div>
+            
+            <div className="form-group">
+              <label>Department*</label>
+              <select 
+                name="department"
+                value={formData.department}
+                onChange={handleChange}
+                required
+              >
+                {departmentsArray.map((dept, i) => (
+                  <option value={dept} key={i}>{dept}</option>
+                ))}
+              </select>
+            </div>
+            
+            <div className="form-group">
+              <label>Doctor*</label>
+              <select 
+                name="doctorId"
+                value={formData.doctorId}
+                onChange={handleChange}
+                required
+                disabled={!formData.department}
+              >
+                <option value="">Select Doctor</option>
+                {filteredDoctors.map((doctor) => (
+                  <option value={doctor._id} key={doctor._id}>
+                    Dr. {doctor.firstName} {doctor.lastName}
+                  </option>
+                ))}
+              </select>
+            </div>
+            
+            <div className="form-group full-width">
+              <label>Address*</label>
+              <textarea 
+                rows="3" 
+                name="address"
+                value={formData.address}
+                onChange={handleChange}
+                required
+              />
+            </div>
+            
+            <div className="form-group checkbox-group">
+              <label>
+                <input 
+                  type="checkbox" 
+                  name="hasVisited"
+                  checked={formData.hasVisited}
+                  onChange={handleChange}
+                />
+                Visited before?
+              </label>
+            </div>
+          </div>
+          
+          <button type="submit" disabled={isLoading}>
+            {isLoading ? 'Booking...' : 'Book Appointment'}
+          </button>
         </form>
       </div>
-    </>
+
+      {/* Styles */}
+      <style jsx>{`
+        .appointment-form-container {
+          max-width: 1000px;
+          margin: 0 auto;
+          padding: 2rem;
+        }
+        
+        .appointment-form {
+          background: #fff;
+          border-radius: 16px;
+          padding: 2.5rem;
+          box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        }
+        
+        .section-header {
+          margin-bottom: 2rem;
+          color: #2c3e50;
+        }
+        
+        .section-header h2 {
+          margin: 0;
+          font-size: 1.8rem;
+        }
+        
+        .section-header p {
+          margin: 0.5rem 0 0;
+          color: #7f8c8d;
+          font-size: 0.95rem;
+        }
+        
+        /* Form Styles */
+        .form-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+          gap: 1.5rem;
+          margin-bottom: 2rem;
+        }
+        
+        .form-group {
+          margin-bottom: 0;
+        }
+        
+        .form-group.full-width {
+          grid-column: 1 / -1;
+        }
+        
+        .form-group.checkbox-group {
+          display: flex;
+          align-items: center;
+        }
+        
+        label {
+          display: block;
+          margin-bottom: 0.5rem;
+          font-weight: 500;
+          color: #2c3e50;
+          font-size: 0.95rem;
+        }
+        
+        input, select, textarea {
+          width: 100%;
+          padding: 0.8rem 1rem;
+          border: 1px solid #ddd;
+          border-radius: 10px;
+          font-size: 0.95rem;
+          transition: all 0.3s ease;
+        }
+        
+        input:focus, select:focus, textarea:focus {
+          border-color: #3498db;
+          outline: none;
+          box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+        }
+        
+        textarea {
+          resize: vertical;
+          min-height: 100px;
+        }
+        
+        input[type="checkbox"] {
+          width: auto;
+          margin-right: 0.5rem;
+        }
+        
+        button {
+          background: #3498db;
+          color: white;
+          padding: 1rem 2rem;
+          border: none;
+          border-radius: 10px;
+          font-size: 1rem;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          width: 100%;
+        }
+        
+        button:hover {
+          background: #2980b9;
+        }
+        
+        button:disabled {
+          background: #bdc3c7;
+          cursor: not-allowed;
+        }
+        
+        /* Responsive Adjustments */
+        @media (max-width: 768px) {
+          .appointment-form-container {
+            padding: 0.5rem;
+    
+          }
+          
+          .appointment-form {
+            padding: 0.5rem;
+            width: 90%;
+            margin-right:2.5rem;
+          }
+        }
+      `}</style>
+    </div>
   );
 };
 
