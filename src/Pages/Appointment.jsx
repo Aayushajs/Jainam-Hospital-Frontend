@@ -1,152 +1,108 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import styled, { keyframes } from "styled-components";
 import AppointmentForm from "../components/AppointmentForm";
 import Lottie from "lottie-react";
 import doctorAnimation from "../../public/Animaition/doctor-animation1.json";
-import {
-  FaCalendarAlt,
-  FaUserMd,
-  FaHospital,
-  FaClock,
-  FaPhoneAlt,
-  FaMapMarkerAlt,
-} from "react-icons/fa";
+import { FaPhone, FaMapMarkerAlt, FaCalendarAlt, FaDirections, FaCrosshairs } from "react-icons/fa";
 import FloatingButton from "../components/FloatingButton";
+import FloatingButton2 from "../components/FloatingButton2";
+import { Dialog, DialogTitle, DialogContent, DialogActions, TextField, Button } from "@mui/material";
 
 // Animations
-const float = keyframes`
-  0% { transform: translateY(0px); }
-  50% { transform: translateY(-15px); }
-  100% { transform: translateY(0px); }
+const floatIn = keyframes`
+  0% { opacity: 0; transform: translateY(30px); }
+  100% { opacity: 1; transform: translateY(0); }
 `;
 
-const pulse = keyframes`
-  0% { box-shadow: 0 0 0 0 rgba(0, 123, 255, 0.7); }
-  70% { box-shadow: 0 0 0 15px rgba(0, 123, 255, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(0, 123, 255, 0); }
+const gradientFlow = keyframes`
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
 `;
 
+// Styled Components
 const PageWrapper = styled.div`
-  background: linear-gradient(135deg, #f5f7fa 0%, #e4f0fb 100%);
+  background: #f8fafc;
   min-height: 100vh;
   font-family: 'Poppins', sans-serif;
 `;
 
-const HeroSection = styled.section`
-  position: relative;
-  height: 60vh;
+const GlassHero = styled.section`
+  height: 45vh;
   display: flex;
   align-items: center;
   justify-content: center;
+  background: linear-gradient(135deg,rgb(31, 90, 216),rgb(53, 99, 171), #60a5fa);
+  background-size: 300% 300%;
+  animation: ${gradientFlow} 12s ease infinite;
+  color: white;
+  text-align: center;
+  position: relative;
   overflow: hidden;
-  background: linear-gradient(135deg, rgb(72, 113, 156) 0%, rgb(139, 126, 161) 100%);
-  clip-path: polygon(0 0, 100% 0, 100% 80%, 0 100%);
-  padding: 0 2rem;
 
   &::before {
     content: '';
     position: absolute;
     top: 0;
     left: 0;
-    width: 100%;
-    height: 100%;
-    background: url('/medical-pattern.png') center/cover;
-    opacity: 0.1;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(5px);
   }
 `;
 
 const HeroContent = styled.div`
-  text-align: center;
-  color: white;
-  z-index: 2;
   max-width: 800px;
-  animation: ${float} 6s ease-in-out infinite;
+  padding: 0 2rem;
+  z-index: 2;
+  animation: ${floatIn} 1s ease-out;
 
   h1 {
-    font-size: 3.5rem;
-    margin-bottom: 1.5rem;
-    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    font-size: 2.8rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    line-height: 1.2;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   }
 
   p {
-    font-size: 1.2rem;
-    line-height: 1.6;
-    margin-bottom: 2rem;
+    font-size: 1.1rem;
+    opacity: 0.9;
+    max-width: 600px;
+    margin: 0 auto;
   }
 
   @media (max-width: 768px) {
     h1 {
-      font-size: 2.5rem;
+      font-size: 2rem;
     }
     p {
-      font-size: 1rem;
+      font-size: 0.95rem;
     }
   }
 `;
 
-const FeaturesGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 2rem;
-  max-width: 1200px;
-  margin: -5rem auto 3rem;
-  padding: 0 2rem;
-  position: relative;
-  z-index: 3;
+const MainGrid = styled.div`
+  max-width: 1400px;
+  margin: -80px auto 4rem;
+  padding: 0 0rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
+  @media (min-width: 1200px) {
+    grid-template-columns: 1.2fr 1fr;
+  }
 `;
 
-const FeatureCard = styled.div`
+const FormContainer = styled.div`
   background: white;
-  border-radius: 16px;
-  padding: 2rem;
-  text-align: center;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-
-  &:hover {
-    transform: translateY(-10px);
-    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.12);
-  }
-
-  svg {
-    font-size: 2.5rem;
-    color: #007bff;
-    margin-bottom: 1rem;
-  }
-
-  h3 {
-    font-size: 1.3rem;
-    margin-bottom: 0.5rem;
-    color: #333;
-  }
-
-  p {
-    color: #666;
-    font-size: 0.95rem;
-  }
-`;
-
-const AppointmentContainer = styled.div`
-  max-width: 1200px;
-  margin: 0 auto 5rem;
-  padding: 0 2rem;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 3rem;
-  align-items: flex-start;
-
-  @media (max-width: 992px) {
-    grid-template-columns: 1fr;
-  }
-`;
-
-const FormWrapper = styled.div`
-  background: white;
-  border-radius: 20px;
-  padding: 3rem;
-  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.08);
+  border-radius: 80px;
+  padding: 1rem;
+  animation: ${floatIn} 0.8s ease-out 0.2s both;
   position: relative;
   overflow: hidden;
+  z-index: 1;
 
   &::before {
     content: '';
@@ -155,24 +111,25 @@ const FormWrapper = styled.div`
     left: 0;
     width: 5px;
     height: 100%;
-    background: linear-gradient(to bottom, #007bff, #00b4ff);
+    background: linear-gradient(to bottom, #3b82f6,rgb(165, 192, 224));
   }
 
   h2 {
-    font-size: 2rem;
-    margin-bottom: 1.5rem;
-    color: #333;
+    font-size: 1.8rem;
+    margin-bottom: 2rem;
+    color: #1e293b;
     position: relative;
-    padding-bottom: 1rem;
+    display: inline-block;
 
     &::after {
       content: '';
       position: absolute;
-      bottom: 0;
+      bottom: -8px;
       left: 0;
-      width: 60px;
+      width: 50%;
       height: 3px;
-      background: linear-gradient(to right, #007bff, #00b4ff);
+      background: linear-gradient(to right, #3b82f6, #93c5fd);
+      border-radius: 3px;
     }
   }
 
@@ -181,273 +138,548 @@ const FormWrapper = styled.div`
   }
 `;
 
-const InfoPanel = styled.div`
-  background: linear-gradient(135deg, rgb(174, 200, 225) 0%, rgb(26, 144, 194) 100%);
+const MapContainer = styled.div`
+  background: white;
   border-radius: 20px;
-  padding: 3rem;
-  color: black;
-  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 15px 50px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  animation: ${floatIn} 0.8s ease-out 0.4s both;
+  display: flex;
+  flex-direction: column;
 
-  h2 {
-    font-size: 2rem;
-    margin-bottom: 1.5rem;
-    position: relative;
-    padding-bottom: 1rem;
-
-    &::after {
-      content: '';
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      width: 90px;
-      height: 3px;
-      background: white;
-    }
-  }
-
-  ul {
-    list-style: none;
-    margin: 2rem 0;
-  }
-
-  li {
-    margin-bottom: 1.5rem;
+  .map-header {
+    padding: 1.5rem 2rem;
+    background: linear-gradient(to right, #1e40af, #2563eb);
+    color: white;
     display: flex;
-    align-items: flex-start;
-    gap: 1rem;
-
-    svg {
-      font-size: 1.2rem;
-      margin-top: 3px;
-    }
-  }
-
-  .emergency {
-    background: white;
-    color: rgb(60, 66, 79);
-    padding: 1.5rem;
-    border-radius: 12px;
-    text-align: center;
-    margin-top: 2rem;
-    animation: ${pulse} 2s infinite;
+    justify-content: space-between;
+    align-items: center;
 
     h3 {
       font-size: 1.5rem;
-      margin-bottom: 0.5rem;
+      margin: 0;
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
     }
 
-    p {
-      font-size: 1.8rem;
-      font-weight: bold;
-      margin: 0;
+    .location-controls {
+      display: flex;
+      gap: 1rem;
+      
+      button {
+        background: rgba(255, 255, 255, 0.2);
+        border: none;
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 4px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.3s ease;
+
+        &:hover {
+          background: rgba(255, 255, 255, 0.3);
+        }
+      }
+    }
+  }
+
+  .map-wrapper {
+    height: 400px;
+    width: 100%;
+    position: relative;
+  }
+
+  .location-info {
+    padding: 1.5rem 2rem;
+    background: white;
+
+    .info-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 1rem;
+      margin-bottom: 1.2rem;
+
+      svg {
+        color: #3b82f6;
+        font-size: 1.2rem;
+        margin-top: 3px;
+      }
+
+      p {
+        margin: 0;
+        color: #475569;
+        font-size: 0.95rem;
+      }
+    }
+
+    .emergency {
+      background: #fff1f2;
+      border-left: 4px solid #f87171;
+      padding: 1rem;
+      border-radius: 0 8px 8px 0;
+      margin-top: 1.5rem;
+
+      h4 {
+        color: #dc2626;
+        margin: 0 0 0.3rem 0;
+        font-size: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      p {
+        color: #b91c1c;
+        font-weight: 600;
+        font-size: 1.1rem;
+        margin: 0;
+      }
     }
   }
 `;
 
-const AppointmentList = styled.div`
-  margin-top: 2rem;
-  background: #fff;
-  padding: 2rem;
-  border-radius: 16px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+const LoaderContainer = styled.div`
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(135deg, #f8fafc, #e0f2fe);
+`;
 
-  h3 {
-    margin-bottom: 1rem;
+const NearbyHospitalsList = styled.div`
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+  z-index: 1000;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+  max-height: 200px;
+  overflow-y: auto;
+  width: 300px;
+
+  h4 {
+    padding: 0.5rem 1rem;
+    margin: 0;
+    background: #f1f5f9;
+    position: sticky;
+    top: 0;
   }
 
-  .appointment-card {
-    border-bottom: 1px solid #ddd;
-    padding: 1rem 0;
+  ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  li {
+    padding: 0.5rem 1rem;
+    border-bottom: 1px solid #e2e8f0;
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    &:hover {
+      background: #f8fafc;
+    }
 
     &:last-child {
       border-bottom: none;
     }
 
     p {
-      margin: 0.3rem 0;
-      font-size: 0.95rem;
+      margin: 0.2rem 0;
+      font-size: 0.9rem;
+    }
+
+    .distance {
+      color: #64748b;
+      font-size: 0.8rem;
     }
   }
 `;
 
-const LoaderWrapper = styled.div`
-  height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background: linear-gradient(135deg, rgb(198, 209, 219) 0%, rgb(33, 185, 250) 100%);
-`;
-
+// Main Component
 const Appointment = () => {
   const [loading, setLoading] = useState(true);
-  const [appointments, setAppointments] = useState([]);
+  const [map, setMap] = useState(null);
+  const [directionsService, setDirectionsService] = useState(null);
+  const [directionsRenderer, setDirectionsRenderer] = useState(null);
+  const [nearbyHospitals, setNearbyHospitals] = useState([]);
+  const [userLocation, setUserLocation] = useState(null);
+  const [selectedHospital, setSelectedHospital] = useState(null);
+  const [locationModalOpen, setLocationModalOpen] = useState(false);
+  const [manualAddress, setManualAddress] = useState("");
+  const [mapLoading, setMapLoading] = useState(true);
+  const mapRef = useRef(null);
 
   useEffect(() => {
-    const timeout = setTimeout(() => setLoading(false), 2000);
+    const timeout = setTimeout(() => setLoading(false), 1000);
     return () => clearTimeout(timeout);
   }, []);
-useEffect(() => {
-  const fetchAppointments = async () => {
-    try {
-      const storedUser = localStorage.getItem("user");
 
-      if (!storedUser) {
-        console.error("User not logged in or localStorage is empty.");
-        return;
-      }
+  useEffect(() => {
+    if (!loading) {
+      const script = document.createElement('script');
+      script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyDEryiUNC5mfPVhYQdXjNyDyy4Dr9ReE-s&libraries=places,geometry&callback=initMap`;
+      script.async = true;
+      script.defer = true;
+      document.head.appendChild(script);
 
-      const userData = JSON.parse(storedUser);
-      const patientId = userData?._id;
+      window.initMap = initMap;
 
-      if (!patientId) {
-        console.error("No patient ID found in user data.");
-        return;
-      }
+      return () => {
+        document.head.removeChild(script);
+        delete window.initMap;
+      };
+    }
+  }, [loading]);
 
-      const res = await fetch(
-        `https://jainam-hospital-backend.onrender.com/api/v1/appointment/getpatientappointments/${patientId}`,
-        {
-          method: "GET",
-          credentials: "include",
-          headers: {
-            "Content-Type": "application/json",
-          },
+  const initMap = () => {
+    setMapLoading(true);
+    const defaultLocation = { lat: 28.6139, lng: 77.2090 };
+    const mapInstance = new window.google.maps.Map(mapRef.current, {
+      center: defaultLocation,
+      zoom: 14,
+      mapTypeId: 'roadmap',
+      tilt: 45,
+      heading: 0,
+      streetViewControl: true,
+      fullscreenControl: true,
+    });
+
+    const directionsServiceInstance = new window.google.maps.DirectionsService();
+    const directionsRendererInstance = new window.google.maps.DirectionsRenderer({
+      map: mapInstance,
+      suppressMarkers: false,
+      preserveViewport: true,
+    });
+
+    setMap(mapInstance);
+    setDirectionsService(directionsServiceInstance);
+    setDirectionsRenderer(directionsRendererInstance);
+
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const userLoc = {
+            lat: position.coords.latitude,
+            lng: position.coords.longitude
+          };
+          setUserLocation(userLoc);
+          mapInstance.setCenter(userLoc);
+          
+          new window.google.maps.Marker({
+            position: userLoc,
+            map: mapInstance,
+            title: "Your Location",
+            icon: {
+              url: "http://maps.google.com/mapfiles/ms/icons/blue-dot.png"
+            }
+          });
+
+          findNearbyHospitals(mapInstance, userLoc);
+          setMapLoading(false);
+        },
+        (error) => {
+          console.error("Error getting location:", error);
+          findNearbyHospitals(mapInstance, defaultLocation);
+          setMapLoading(false);
         }
       );
-
-      const data = await res.json();
-      console.log("Fetched Data:", data);
-
-      if (data.success && data.appointments) {
-        setAppointments(data.appointments);
-      } else {
-        console.error("No appointments found or API response format is unexpected");
-      }
-    } catch (error) {
-      console.error("Error fetching appointments:", error);
+    } else {
+      console.error("Geolocation is not supported by this browser.");
+      findNearbyHospitals(mapInstance, defaultLocation);
+      setMapLoading(false);
     }
   };
 
-  fetchAppointments();
-}, []);
+  const findNearbyHospitals = (mapInstance, location) => {
+    const request = {
+      location: location,
+      radius: '5000',
+      type: ['hospital']
+    };
 
+    const service = new window.google.maps.places.PlacesService(mapInstance);
+    service.nearbySearch(request, (results, status) => {
+      if (status === window.google.maps.places.PlacesServiceStatus.OK) {
+        const hospitals = results.map(place => ({
+          id: place.place_id,
+          name: place.name,
+          location: place.geometry.location,
+          address: place.vicinity,
+          distance: window.google.maps.geometry.spherical.computeDistanceBetween(
+            location,
+            place.geometry.location
+          )
+        })).sort((a, b) => a.distance - b.distance);
 
+        setNearbyHospitals(hospitals);
 
-  if (loading) {
-    return (
-      <LoaderWrapper>
-        <Lottie animationData={doctorAnimation} style={{ width: "300px", height: "300px" }} />
-      </LoaderWrapper>
-    );
-  }
+        hospitals.forEach(hospital => {
+          new window.google.maps.Marker({
+            position: hospital.location,
+            map: mapInstance,
+            title: hospital.name,
+            icon: {
+              url: "http://maps.google.com/mapfiles/ms/icons/red-dot.png"
+            }
+          });
+        });
+      }
+    });
+  };
+
+  const showDirections = (hospital) => {
+    if (!userLocation || !directionsService || !directionsRenderer) return;
+
+    setSelectedHospital(hospital);
+
+    const request = {
+      origin: userLocation,
+      destination: hospital.location,
+      travelMode: 'DRIVING'
+    };
+
+    directionsService.route(request, (result, status) => {
+      if (status === 'OK') {
+        directionsRenderer.setDirections(result);
+        
+        if (map) {
+          map.setTilt(45);
+          map.setZoom(16);
+        }
+      }
+    });
+  };
+
+  const handleManualLocation = () => {
+    setLocationModalOpen(true);
+  };
+
+  const handleUseCurrentLocation = () => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const userLoc = {
+            lat: position.coords.latitude,
+            lng: position.coords.longitude
+          };
+          setUserLocation(userLoc);
+          if (map) {
+            map.setCenter(userLoc);
+            map.setZoom(16);
+            new window.google.maps.Marker({
+              position: userLoc,
+              map: map,
+              title: "Your Location",
+              icon: {
+                url: "http://maps.google.com/mapfiles/ms/icons/blue-dot.png"
+              }
+            });
+            findNearbyHospitals(map, userLoc);
+          }
+          setLocationModalOpen(false);
+        },
+        (error) => {
+          console.error("Error getting location:", error);
+          alert("Could not get your current location. Please try again or enter manually.");
+        }
+      );
+    } else {
+      alert("Geolocation is not supported by your browser. Please enter address manually.");
+    }
+  };
+
+  const handleSubmitManualLocation = () => {
+    if (manualAddress.trim() && map) {
+      const geocoder = new window.google.maps.Geocoder();
+      geocoder.geocode({ address: manualAddress }, (results, status) => {
+        if (status === 'OK' && results[0]) {
+          const location = results[0].geometry.location;
+          map.setCenter(location);
+          map.setZoom(16);
+          
+          new window.google.maps.Marker({
+            position: location,
+            map: map,
+            title: manualAddress
+          });
+
+          if (userLocation) {
+            showDirections({
+              location: location,
+              name: "Manual Location",
+              address: manualAddress
+            });
+          }
+          setLocationModalOpen(false);
+          setManualAddress("");
+        } else {
+          alert("Could not find the location: " + manualAddress);
+        }
+      });
+    }
+  };
 
   return (
     <PageWrapper>
-      <HeroSection>
-        <HeroContent>
-          <h1>Book Your Appointment</h1>
-          <p>Experience world-class healthcare with our expert medical team. Schedule your visit in just a few clicks.</p>
-        </HeroContent>
-      </HeroSection>
+      {loading && (
+        <LoaderContainer>
+          <Lottie 
+            animationData={doctorAnimation}
+            style={{ width: 300, height: 300 }}
+            loop={true}
+            autoplay={true}
+          />
+        </LoaderContainer>
+      )}
 
-      <FeaturesGrid>
-        <FeatureCard>
-          <FaCalendarAlt />
-          <h3>Easy Scheduling</h3>
-          <p>Book appointments 24/7 through our online portal with instant confirmation</p>
-        </FeatureCard>
-        <FeatureCard>
-          <FaUserMd />
-          <h3>Expert Doctors</h3>
-          <p>Consult with our team of highly qualified and experienced specialists</p>
-        </FeatureCard>
-        <FeatureCard>
-          <FaHospital />
-          <h3>Modern Facilities</h3>
-          <p>State-of-the-art equipment and comfortable patient care environment</p>
-        </FeatureCard>
-      </FeaturesGrid>
+      {!loading && (
+        <>
+          <GlassHero>
+            <HeroContent>
+              <h1>Schedule Your Visit</h1>
+              <p>Book an appointment with our specialists in just a few clicks</p>
+            </HeroContent>
+          </GlassHero>
 
-      <AppointmentContainer>
-        <FormWrapper>
-          <h2>Appointment Form</h2>
-          <AppointmentForm />
-        </FormWrapper>
+          <MainGrid>
+            <FormContainer>
+              <AppointmentForm />
+            </FormContainer>
 
-        <InfoPanel>
-          <h2>Why Choose Us?</h2>
-          <ul>
-            <li>
-              <FaClock />
-              <div>
-                <strong>Minimal Wait Times</strong>
-                <p>Our efficient system ensures you spend less time waiting</p>
+            <MapContainer>
+              <div className="map-header">
+                <h3>
+                  <FaMapMarkerAlt /> Our Medical Center
+                </h3>
+                <div className="location-controls">
+                  <button onClick={handleManualLocation}>
+                    <FaMapMarkerAlt /> Enter Location
+                  </button>
+                  {selectedHospital && (
+                    <button onClick={() => showDirections(selectedHospital)}>
+                      <FaDirections /> Show Directions
+                    </button>
+                  )}
+                </div>
               </div>
-            </li>
-            <li>
-              <FaUserMd />
-              <div>
-                <strong>100+ Specialists</strong>
-                <p>Wide range of medical experts for all your needs</p>
+              
+              {mapLoading && (
+                <div style={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  backgroundColor: 'rgba(255,255,255,0.8)',
+                  zIndex: 1000
+                }}>
+                  <Lottie 
+                    animationData={doctorAnimation}
+                    style={{ width: 150, height: 150 }}
+                    loop={true}
+                    autoplay={true}
+                  />
+                </div>
+              )}
+              
+              <div className="map-wrapper" ref={mapRef}>
+                {nearbyHospitals.length > 0 && (
+                  <NearbyHospitalsList>
+                    <h4>Nearby Hospitals</h4>
+                    <ul>
+                      {nearbyHospitals.map(hospital => (
+                        <li 
+                          key={hospital.id} 
+                          onClick={() => showDirections(hospital)}
+                          style={{ 
+                            backgroundColor: selectedHospital?.id === hospital.id ? '#f1f5f9' : 'white'
+                          }}
+                        >
+                          <p><strong>{hospital.name}</strong></p>
+                          <p>{hospital.address}</p>
+                          <p className="distance">
+                            {Math.round(hospital.distance)} meters away
+                          </p>
+                        </li>
+                      ))}
+                    </ul>
+                  </NearbyHospitalsList>
+                )}
               </div>
-            </li>
-            <li>
-              <FaMapMarkerAlt />
-              <div>
-                <strong>Convenient Location</strong>
-                <p>Central location with ample parking facilities</p>
+              
+              <div className="location-info">
+                <div className="info-item">
+                  <FaMapMarkerAlt />
+                  <p>123 Wellness Boulevard, Health District, MedCity 54321</p>
+                </div>
+                
+                <div className="info-item">
+                  <FaPhone />
+                  <p>Main Desk: (555) 123-4567</p>
+                </div>
+                
+                <div className="info-item">
+                  <FaCalendarAlt />
+                  <p>Monday - Saturday: 7:00 AM - 9:00 PM</p>
+                </div>
+                
+                <div className="emergency">
+                  <h4><FaPhone /> Emergency Contact</h4>
+                  <p>Call +91 93026 33266</p>
+                </div>
               </div>
-            </li>
-          </ul>
+            </MapContainer>
+          </MainGrid>
+          
+          <FloatingButton2/>
+          <FloatingButton />
+        </>
+      )}
 
-          <div className="emergency">
-            <h3>EMERGENCY</h3>
-            <p><FaPhoneAlt /> Helpline: 1800-123-4567</p>
-          </div>
-          <div className="emergency">
-         <AppointmentList>
-  <h3>Your Appointments</h3>
-  {appointments.length === 0 ? (
-    <p>No appointments found.</p>
-  ) : (
-    appointments.map((item, index) => (
-      <div className="appointment-card" key={item._id}>
-        <p><strong>Sr No:</strong> {index + 1}</p>
-        <p><strong>Name:</strong> {item.firstName} {item.lastName}</p>
-        <p><strong>Doctor:</strong> Dr. {item.doctor.firstName} {item.doctor.lastName}</p>
-        <p><strong>Department:</strong> {item.department}</p>
-        <p><strong>Appointment Date:</strong> {item.appointment_date}</p>
-        <p>
-          <strong>Status:</strong>{" "}
-          <span
-            style={{
-              padding: "4px 10px",
-              borderRadius: "12px",
-              color: "#fff",
-              backgroundColor:
-                item.status === "pending"
-                  ? "#f0ad4e"
-                  : item.status === "accepted"
-                  ? "#5cb85c"
-                  : "#d9534f",
-              fontWeight: "bold",
-              fontSize: "0.85rem",
-              marginLeft: "6px",
-            }}
+      <Dialog open={locationModalOpen} onClose={() => setLocationModalOpen(false)}>
+        <DialogTitle>Enter Hospital Location</DialogTitle>
+        <DialogContent>
+          <TextField
+            autoFocus
+            margin="dense"
+            label="Hospital Address"
+            type="text"
+            fullWidth
+            variant="outlined"
+            value={manualAddress}
+            onChange={(e) => setManualAddress(e.target.value)}
+            sx={{ mt: 2 }}
+          />
+          <Button
+            fullWidth
+            variant="contained"
+            startIcon={<FaCrosshairs />}
+            onClick={handleUseCurrentLocation}
+            sx={{ mt: 2 }}
           >
-            {item.status.toUpperCase()}
-          </span>
-        </p>
-      </div>
-    ))
-  )}
-</AppointmentList>
-            </div>
-         
-        </InfoPanel>
-        
-      </AppointmentContainer>
-      <FloatingButton/>
+            Use Current Location
+          </Button>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setLocationModalOpen(false)}>Cancel</Button>
+          <Button 
+            onClick={handleSubmitManualLocation}
+            disabled={!manualAddress.trim()}
+            variant="contained"
+          >
+            Submit
+          </Button>
+        </DialogActions>
+      </Dialog>
     </PageWrapper>
   );
 };

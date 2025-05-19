@@ -1,12 +1,12 @@
+// Navbar.jsx
 import React, { useContext, useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import { GiHamburgerMenu } from "react-icons/gi";
-import { IoClose } from "react-icons/io5";
-import { FaUserCircle } from "react-icons/fa";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { Context } from "../main";
 import styled, { keyframes } from "styled-components";
+import { GiHamburgerMenu } from "react-icons/gi";
+import { IoClose } from "react-icons/io5";
 
 // Animations
 const fadeIn = keyframes`
@@ -30,6 +30,7 @@ const NavContainer = styled.nav`
   box-shadow: ${({ scroll }) => scroll ? "0 4px 30px rgba(0, 0, 0, 0.06)" : "none"};
   border-radius: 50px;
   transition: all 0.3s ease;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 `;
 
 const Logo = styled(Link)`
@@ -68,7 +69,6 @@ const NavLinks = styled.div`
     justify-content: flex-start;
     padding-top: 4rem;
     transition: all 0.4s ease;
-    box-shadow: -8px 0 20px rgba(0, 0, 0, 0.1);
     z-index: 999;
     border-top-left-radius: 30px;
     border-bottom-left-radius: 30px;
@@ -76,11 +76,11 @@ const NavLinks = styled.div`
 `;
 
 const NavLink = styled(Link)`
+  position: relative;
   text-decoration: none;
   color: #1f1f1f;
   font-weight: 500;
   font-size: 1.1rem;
-  position: relative;
   transition: all 0.3s;
 
   &.active {
@@ -112,6 +112,40 @@ const NavLink = styled(Link)`
     font-size: 1.2rem;
     margin: 0.8rem 0;
     animation: ${fadeIn} 0.3s ease forwards;
+  }
+`;
+
+const AboutDropdown = styled.div`
+  position: relative;
+  &:hover .dropdown-content {
+    display: block;
+  }
+`;
+
+const DropdownContent = styled.div`
+  display: none;
+  position: absolute;
+  top: 140%;
+  background: #fff;
+  box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.1);
+  padding: 0.8rem 1.2rem;
+  border-radius: 10px;
+  z-index: 1000;
+  min-width: 180px;
+  font-size: 0.95rem;
+  text-align: left;
+
+  a {
+    display: block;
+    color: #333;
+    padding: 0.4rem 0;
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.3s ease;
+
+    &:hover {
+      color: #e63946;
+    }
   }
 `;
 
@@ -150,7 +184,6 @@ const CloseButton = styled(IoClose)`
   font-size: 2rem;
   cursor: pointer;
   color: #1f1f1f;
-  z-index: 1001;
 `;
 
 const Overlay = styled.div`
@@ -177,14 +210,19 @@ const ProfileContainer = styled.div`
   }
 `;
 
-const ProfileIcon = styled(FaUserCircle)`
-  font-size: 2.1rem;
-  color: #1f1f1f;
+const InitialCircle = styled.div`
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background-color: #e63946;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 1.1rem;
   cursor: pointer;
-   margin-right: -4rem
-  &:hover {
-    color: #e63946;
-  }
+  user-select: none;
 `;
 
 const Dropdown = styled.div`
@@ -196,6 +234,7 @@ const Dropdown = styled.div`
   padding: 1rem;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
   opacity: 0;
+   font-weight: bold;
   visibility: hidden;
   transform: translateY(-10px);
   transition: all 0.3s ease;
@@ -208,7 +247,7 @@ const Dropdown = styled.div`
   }
 
   button {
-    color: #e63946;
+    color:rgba(22, 102, 70, 0.67);
     background: none;
     border: none;
     font-weight: 600;
@@ -217,55 +256,10 @@ const Dropdown = styled.div`
   }
 `;
 
-const ToggleWrapper = styled.div`
-  display: flex;
-  align-items: center;
-  margin-left: 1rem;
-`;
-
-const Switch = styled.label`
-  position: relative;
-  display: inline-block;
-  width: 45px;
-  height: 24px;
-  input {
-    opacity: 0;
-    width: 0;
-    height: 0;
-  }
-  span {
-    position: absolute;
-    cursor: pointer;
-    top: 0; left: 0;
-    right: 0; bottom: 0;
-    background-color: #ccc;
-    border-radius: 34px;
-    transition: 0.4s;
-  }
-  span:before {
-    position: absolute;
-    content: "";
-    height: 18px;
-    width: 18px;
-    left: 3px;
-    bottom: 3px;
-    background-color: white;
-    border-radius: 50%;
-    transition: 0.4s;
-  }
-  input:checked + span {
-    background-color: #e63946;
-  }
-  input:checked + span:before {
-    transform: translateX(21px);
-  }
-`;
-
 // Component
 const Navbar = () => {
   const [show, setShow] = useState(false);
   const [scroll, setScroll] = useState(false);
-  const [darkMode, setDarkMode] = useState(false);
   const { isAuthenticated, setIsAuthenticated, user } = useContext(Context);
   const navigate = useNavigate();
   const location = useLocation();
@@ -281,10 +275,6 @@ const Navbar = () => {
   useEffect(() => {
     setShow(false);
   }, [location]);
-
-  useEffect(() => {
-    document.body.classList.toggle("dark-mode", darkMode);
-  }, [darkMode]);
 
   const handleLogout = async () => {
     try {
@@ -313,28 +303,25 @@ const Navbar = () => {
         <NavLinks show={show}>
           <NavLink to="/" className={location.pathname === "/" ? "active" : ""}>Home</NavLink>
           <NavLink to="/appointment" className={location.pathname === "/appointment" ? "active" : ""}>Appointment</NavLink>
-          <NavLink to="/about" className={location.pathname === "/about" ? "active" : ""}>About Us</NavLink>
+          <NavLink to="/about" className={location.pathname === "/about" ? "active" : ""}>About Us</NavLink>   
+          <NavLink to="/departments" className={location.pathname === "/departments" ? "active" : ""}>AI Assistent</NavLink>
+     
 
           {isAuthenticated ? (
             <ProfileContainer>
-              <ProfileIcon />
+              <InitialCircle>{user?.firstName?.charAt(0)?.toUpperCase()}</InitialCircle>
               <Dropdown className="dropdown">
-                <div><strong>{`Wellcome Back ${user?.firstName} ${user?.lastName}`}</strong></div>
+                <div><strong>{`Welcome Back ${user?.firstName} ${user?.lastName}`}</strong></div>
                 <div style={{ fontSize: "0.85rem", color: "gray" }}>{user?.email}</div>
-                <div><button onClick={() => navigate("/profile")}>View Profile</button></div>
+                <div><button onClick={() => navigate("/profile")}>My Profile</button></div>
+                 <div><button onClick={() => navigate("/profile")}>Feedback</button></div>
+                 <div><button onClick={() => navigate("/appoinmentpage")}>Appointment History</button></div>
                 <div><button onClick={handleLogout}>Logout</button></div>
               </Dropdown>
             </ProfileContainer>
           ) : (
             <AuthButton onClick={goToLogin}>LOGIN</AuthButton>
           )}
-
-          {/* <ToggleWrapper>
-            <Switch>
-              <input type="checkbox" checked={darkMode} onChange={() => setDarkMode(!darkMode)} />
-              <span></span>
-            </Switch>
-          </ToggleWrapper> */}
         </NavLinks>
       </NavContainer>
       <Overlay show={show} onClick={() => setShow(false)} />

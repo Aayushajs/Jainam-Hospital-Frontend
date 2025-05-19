@@ -291,7 +291,8 @@ const AppointmentForm = ({ patientId }) => {
       {/* Styles */}
       <style jsx>{`
         .appointment-form-container {
-          max-width: 1000px;
+          max-width: 1900px;
+        height: 50%;
           margin: 0 auto;
           padding: 2rem;
         }
@@ -300,7 +301,6 @@ const AppointmentForm = ({ patientId }) => {
           background: #fff;
           border-radius: 16px;
           padding: 2.5rem;
-          box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
         }
         
         .section-header {

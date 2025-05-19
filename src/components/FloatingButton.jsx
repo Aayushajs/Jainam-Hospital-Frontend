@@ -19,7 +19,7 @@ const FloatingButton = () => {
         onClick={handleClick}
         sx={{
           position: "fixed",
-          bottom: 90,
+          bottom: 80,
           right: 50,
           zIndex: 2000,
           backgroundColor: "#3c6e71",
