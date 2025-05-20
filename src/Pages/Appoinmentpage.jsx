@@ -1,9 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { FaDownload, FaCalendarAlt, FaUserMd, FaPhone, FaEnvelope, FaPills, FaNotesMedical, FaRupeeSign, FaPlus, FaSearch } from "react-icons/fa";
+import { FaDownload, FaCalendarAlt, FaUserMd, FaPhone, FaEnvelope, FaPills, FaNotesMedical, FaRupeeSign, FaPlus, FaSearch, FaVideo } from "react-icons/fa";
 import Lottie from "lottie-react";
 import celebrationAnimation from "../../public/Animaition/clibretionn-animation.json";
 import downloadAnimation from "../../public/Animaition/doctor-animation1.json";
 import doctorAnimation from "../../public/Animaition/doctor-animation1.json";
+import loginAnimation from "../../public/Animaition/login-animation.json";
+import noRecordsAnimation from "../../public/Animaition/no-records-animation.json";
+import noAppointmentsAnimation from "../../public/Animaition/no-appointments-animation.json";
 
 const PatientDashboard = () => {
   const storedUser = localStorage.getItem("user");
@@ -15,17 +18,70 @@ const PatientDashboard = () => {
   const [showCelebration, setShowCelebration] = useState(false);
   const [downloadingId, setDownloadingId] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [error, setError] = useState("");
 
   if (!storedUser) {
-    console.error("User not logged in or localStorage is empty.");
-    return <div className="error">Please login to access this page</div>;
+    return (
+      <div className="error-container">
+        <div className="animation-container">
+          <Lottie 
+            animationData={loginAnimation}
+            loop={true}
+            style={{ width: 300, height: 300 }}
+          />
+        </div>
+        <div className="error-message">
+          Please login to access this page
+        </div>
+        <button 
+          className="login-redirect-btn"
+          onClick={() => window.location.href = "/login"}
+        >
+          Go to Login Page
+        </button>
+        <style jsx>{`
+          .error-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            text-align: center;
+            padding: 2rem;
+          }
+          .animation-container {
+            margin-bottom: 2rem;
+          }
+          .error-message {
+            font-size: 1.5rem;
+            color: #dc2626;
+            margin-bottom: 2rem;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 500;
+          }
+          .login-redirect-btn {
+            padding: 0.8rem 1.5rem;
+            background: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.3s ease;
+            font-family: 'Montserrat', sans-serif;
+          }
+          .login-redirect-btn:hover {
+            background: #2563eb;
+          }
+        `}</style>
+      </div>
+    );
   }
 
   const userData = JSON.parse(storedUser);
   const patientId = userData?._id;
   
   if (!patientId) {
-    console.error("No patient ID found in user data.");
     return <div className="error">Invalid user data</div>;
   }
 
@@ -62,6 +118,7 @@ const PatientDashboard = () => {
         setDescriptions(data2.descriptions || []);
       } catch (err) {
         console.error("Error fetching:", err);
+        setError("Failed to fetch data. Please try again later.");
       } finally {
         setLoading(false);
       }
@@ -94,21 +151,26 @@ const PatientDashboard = () => {
       setDownloadingId(id);
       
       const endpoint = isAppointment 
-        ? `https://jahan-hospital-backend.onrender.com/api/v1/appointments/${id}/pdf`
-        : `https://jahan-hospital-backend.onrender.com/api/v1/descriptions/${id}/pdf`;
+        ? `https://jainam-hospital-backend.onrender.com/api/v1/appointment/${id}/pdf`
+        : `https://jainam-hospital-backend.onrender.com/api/v1/descriptions/${id}/pdf`;
       
-      const url = `${endpoint}?t=${Date.now()}`;
-      
-      const response = await fetch(url, {
-        credentials: "include",
+      const response = await fetch(endpoint, {
+        method: 'GET',
+        credentials: 'include',
         headers: {
-          'Cache-Control': 'no-cache',
-          'Pragma': 'no-cache'
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
         }
       });
 
       if (!response.ok) {
         throw new Error(`Server responded with status ${response.status}`);
+      }
+
+      const contentType = response.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/pdf')) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Response was not a PDF');
       }
 
       const blob = await response.blob();
@@ -124,16 +186,26 @@ const PatientDashboard = () => {
       setTimeout(() => {
         document.body.removeChild(link);
         window.URL.revokeObjectURL(downloadUrl);
+        setShowCelebration(true);
+        setTimeout(() => setShowCelebration(false), 3000);
       }, 100);
 
-      setShowCelebration(true);
-      setTimeout(() => setShowCelebration(false), 3000);
     } catch (error) {
       console.error('Download failed:', error);
-      alert(`Download failed: ${error.message}`);
+      setError(`Download failed: ${error.message}`);
     } finally {
       setDownloadingId(null);
     }
+  };
+
+  const handleCall = (phoneNumber) => {
+    console.log(`Initiating call to ${phoneNumber}`);
+    window.open(`tel:${phoneNumber}`);
+  };
+
+  const handleVideoCall = (phoneNumber) => {
+    console.log(`Initiating video call to ${phoneNumber}`);
+    alert(`Video call would be initiated with doctor at ${phoneNumber}. This would integrate with your video call service in production.`);
   };
 
   const getStatusBadge = (status) => {
@@ -231,138 +303,137 @@ const PatientDashboard = () => {
         )}
 
         <style jsx>{`
-  .shimmer {
-    position: relative;
-    overflow: hidden;
-    background: #f0f0f0;
-    border-radius: 8px;
-    margin: 16px 0; /* top and bottom margin */
-  }
+          .shimmer {
+            position: relative;
+            overflow: hidden;
+            background: #f0f0f0;
+            border-radius: 8px;
+            margin: 16px 0;
+          }
 
-  .shimmer::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -150px;
-    width: 100px;
-    height: 100%;
-    background: linear-gradient(
-      90deg,
-      transparent,
-      rgba(255, 255, 255, 0.6),
-      transparent
-    );
-    animation: shimmer 1.5s infinite ease-in-out;
-  }
+          .shimmer::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -150px;
+            width: 100px;
+            height: 100%;
+            background: linear-gradient(
+              90deg,
+              transparent,
+              rgba(255, 255, 255, 0.6),
+              transparent
+            );
+            animation: shimmer 1.5s infinite ease-in-out;
+          }
 
-  @keyframes shimmer {
-    0% { transform: translateX(0); }
-    100% { transform: translateX(250%); }
-  }
+          @keyframes shimmer {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(250%); }
+          }
 
-  .shimmer-header {
-    height: 24px;
-    width: 50%;
-    margin: 20px auto;
-    background: #e0e0e0;
-    border-radius: 4px;
-  }
+          .shimmer-header {
+            height: 24px;
+            width: 50%;
+            margin: 20px auto;
+            background: #e0e0e0;
+            border-radius: 4px;
+          }
 
-  .shimmer-line {
-    height: 12px;
-    width: 90%;
-    margin: 10px auto;
-    background: #e0e0e0;
-    border-radius: 4px;
-  }
+          .shimmer-line {
+            height: 12px;
+            width: 90%;
+            margin: 10px auto;
+            background: #e0e0e0;
+            border-radius: 4px;
+          }
 
-  .shimmer-button {
-    height: 36px;
-    width: 120px;
-    margin: 20px auto;
-    background: #e0e0e0;
-    border-radius: 20px;
-  }
+          .shimmer-button {
+            height: 36px;
+            width: 120px;
+            margin: 20px auto;
+            background: #e0e0e0;
+            border-radius: 20px;
+          }
 
-  .shimmer-avatar {
-    width: 60px;
-    height: 60px;
-    margin: 10px auto;
-    border-radius: 50%;
-    background: #e0e0e0;
-  }
+          .shimmer-avatar {
+            width: 60px;
+            height: 60px;
+            margin: 10px auto;
+            border-radius: 50%;
+            background: #e0e0e0;
+          }
 
-  .shimmer-text {
-    height: 18px;
-    width: 40%;
-    margin: 10px auto;
-    background: #e0e0e0;
-    border-radius: 4px;
-  }
+          .shimmer-text {
+            height: 18px;
+            width: 40%;
+            margin: 10px auto;
+            background: #e0e0e0;
+            border-radius: 4px;
+          }
 
-  .shimmer-icon {
-    width: 24px;
-    height: 24px;
-    background: #e0e0e0;
-    border-radius: 4px;
-    margin: 0 auto 10px;
-  }
+          .shimmer-icon {
+            width: 24px;
+            height: 24px;
+            background: #e0e0e0;
+            border-radius: 4px;
+            margin: 0 auto 10px;
+          }
 
-  .appointment-card.shimmer,
-  .description-card.shimmer {
-    padding: 20px;
-    background: #f8f8f8;
-    border-radius: 12px;
-    margin: 20px 0; /* added top and bottom margin */
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.03);
-  }
+          .appointment-card.shimmer,
+          .description-card.shimmer {
+            padding: 20px;
+            background: #f8f8f8;
+            border-radius: 12px;
+            margin: 20px 0;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.03);
+          }
 
-  .shimmer-doctor {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin: 15px 0;
-  }
+          .shimmer-doctor {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 15px 0;
+          }
 
-  .shimmer-details {
-    flex: 1;
-  }
+          .shimmer-details {
+            flex: 1;
+          }
 
-  .shimmer-prescription,
-  .shimmer-medicine {
-    margin: 10px 0;
-  }
+          .shimmer-prescription,
+          .shimmer-medicine {
+            margin: 10px 0;
+          }
 
-  .appointments-grid,
-  .descriptions-list {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 20px;
-    margin: 20px 0; /* top and bottom spacing */
-  }
+          .appointments-grid,
+          .descriptions-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+          }
 
-  .dashboard-header.shimmer {
-    padding: 20px;
-    margin: 30px 0; /* top and bottom spacing */
-    background: #f8f8f8;
-    border-radius: 10px;
-  }
+          .dashboard-header.shimmer {
+            padding: 20px;
+            margin: 30px 0;
+            background: #f8f8f8;
+            border-radius: 10px;
+          }
 
-  .tabs.shimmer {
-    display: flex;
-    gap: 10px;
-    margin: 20px 0; /* top and bottom spacing */
-    justify-content: center;
-  }
+          .tabs.shimmer {
+            display: flex;
+            gap: 10px;
+            margin: 20px 0;
+            justify-content: center;
+          }
 
-  .tab.shimmer {
-    height: 32px;
-    width: 150px;
-    background: #e0e0e0;
-    border-radius: 20px;
-  }
-`}</style>
-
+          .tab.shimmer {
+            height: 32px;
+            width: 150px;
+            background: #e0e0e0;
+            border-radius: 20px;
+          }
+        `}</style>
       </div>
     );
   }
@@ -402,6 +473,15 @@ const PatientDashboard = () => {
         </div>
       </div>
 
+      {error && (
+        <div className="error-message">
+          {error}
+          <button onClick={() => setError("")} className="close-error">
+            ×
+          </button>
+        </div>
+      )}
+
       {activeTab === "appointments" && (
         <div className="appointments-section">
           <div className="appointments-header">
@@ -429,6 +509,13 @@ const PatientDashboard = () => {
           
           {filteredAppointments.length === 0 ? (
             <div className="empty-state">
+              <div className="animation-container">
+                <Lottie 
+                  animationData={noAppointmentsAnimation}
+                  loop={true}
+                  style={{ width: 250, height: 250 }}
+                />
+              </div>
               <p>{searchTerm ? "No matching appointments found" : "No appointments found"}</p>
               <button 
                 className="new-appointment-btn"
@@ -439,53 +526,58 @@ const PatientDashboard = () => {
             </div>
           ) : (
             <div className="appointments-grid">
-              {filteredAppointments.map((app) => (
-                <div key={app._id} className="appointment-card">
-                  <div className="card-header">
-                    <h3>{app.department}</h3>
-                    {getStatusBadge(app.status)}
+              {filteredAppointments.map((app) => {
+                const relatedDescription = descriptions.find(d => d.appointment?._id === app._id);
+                const descriptionId = relatedDescription?._id;
+
+                return (
+                  <div key={app._id} className="appointment-card">
+                    <div className="card-header">
+                      <h3>{app.department}</h3>
+                      {getStatusBadge(app.status)}
+                    </div>
+                    
+                    <div className="card-body">
+                      <div className="info-row">
+                        <span className="label">Date:</span>
+                        <span>{new Date(app.appointment_date).toLocaleDateString()}</span>
+                      </div>
+                      
+                      <div className="info-row">
+                        <span className="label">Doctor:</span>
+                        <span>{app.doctor?.firstName} {app.doctor?.lastName}</span>
+                      </div>
+                      
+                      <div className="info-row">
+                        <span className="label">Fees:</span>
+                        <span>₹{app.fees}</span>
+                      </div>
+                      
+                      {app.status === "Completed" && descriptionId && (
+                        <button 
+                          onClick={() => handleDownload(descriptionId, false)}
+                          className="download-btn"
+                          disabled={downloadingId === descriptionId}
+                        >
+                          {downloadingId === descriptionId ? (
+                            <div className="download-animation">
+                              <Lottie 
+                                animationData={downloadAnimation}
+                                loop={true}
+                                style={{ width: 24, height: 24 }}
+                              />
+                            </div>
+                          ) : (
+                            <>
+                              <FaDownload /> Download Report
+                            </>
+                          )}
+                        </button>
+                      )}
+                    </div>
                   </div>
-                  
-                  <div className="card-body">
-                    <div className="info-row">
-                      <span className="label">Date:</span>
-                      <span>{new Date(app.appointment_date).toLocaleDateString()}</span>
-                    </div>
-                    
-                    <div className="info-row">
-                      <span className="label">Doctor:</span>
-                      <span>{app.doctor?.firstName} {app.doctor?.lastName}</span>
-                    </div>
-                    
-                    <div className="info-row">
-                      <span className="label">Fees:</span>
-                      <span>₹{app.fees}</span>
-                    </div>
-                    
-                    {app.status === "Completed" && descriptions.some(d => d.appointment._id === app._id) && (
-                      <button 
-                        onClick={() => handleDownload(app._id)}
-                        className="download-btn"
-                        disabled={downloadingId === app._id}
-                      >
-                        {downloadingId === app._id ? (
-                          <div className="download-animation">
-                            <Lottie 
-                              animationData={downloadAnimation}
-                              loop={true}
-                              style={{ width: 24, height: 24 }}
-                            />
-                          </div>
-                        ) : (
-                          <>
-                            <FaDownload /> Download Report
-                          </>
-                        )}
-                      </button>
-                    )}
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>
@@ -499,7 +591,17 @@ const PatientDashboard = () => {
           
           {descriptions.length === 0 ? (
             <div className="empty-state">
+              <div className="animation-container">
+                <Lottie 
+                  animationData={noRecordsAnimation}
+                  loop={true}
+                  style={{ width: 250, height: 250 }}
+                />
+              </div>
               <p>No medical records available.</p>
+              {appointments.length > 0 && (
+                <p>Complete an appointment to see your medical records here.</p>
+              )}
             </div>
           ) : (
             <div className="descriptions-list">
@@ -544,6 +646,14 @@ const PatientDashboard = () => {
                         <div className="contact-info">
                           <span><FaPhone /> {desc.doctor.contact.phone}</span>
                           <span><FaEnvelope /> {desc.doctor.contact.email}</span>
+                          <div className="call-buttons">
+                            <button className="call-btn" onClick={() => handleCall(desc.doctor.contact.phone)}>
+                              <FaPhone /> Call
+                            </button>
+                            <button className="video-call-btn" onClick={() => handleVideoCall(desc.doctor.contact.phone)}>
+                              <FaVideo /> Video Call
+                            </button>
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -663,10 +773,29 @@ const PatientDashboard = () => {
           margin-bottom: 1.5rem;
         }
         
-        .dashboard-header h1 {
-          color: #2c3e50;
-          margin-bottom: 0;
-          font-size: 2.5rem;
+        .error-message {
+          position: fixed;
+          top: 20px;
+          left: 50%;
+          transform: translateX(-50%);
+          background: #fee2e2;
+          color: #b91c1c;
+          padding: 0.8rem 1.5rem;
+          border-radius: 8px;
+          display: flex;
+          align-items: center;
+          gap: 1rem;
+          z-index: 100;
+          box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .close-error {
+          background: none;
+          border: none;
+          color: #b91c1c;
+          font-size: 1.2rem;
+          cursor: pointer;
+          padding: 0 0.5rem;
         }
         
         .total-fees {
@@ -807,6 +936,18 @@ const PatientDashboard = () => {
           border-radius: 8px;
           color: #64748b;
           margin: 2rem 0;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+        }
+        
+        .animation-container {
+          margin-bottom: 1.5rem;
+        }
+        
+        .empty-state p {
+          margin-bottom: 1rem;
+          font-size: 1.1rem;
         }
         
         .appointments-grid {
@@ -974,6 +1115,8 @@ const PatientDashboard = () => {
           display: flex;
           gap: 1rem;
           font-size: 0.9rem;
+          align-items: center;
+          flex-wrap: wrap;
         }
         
         .contact-info span {
@@ -981,6 +1124,42 @@ const PatientDashboard = () => {
           align-items: center;
           gap: 0.3rem;
           color: #475569;
+        }
+        
+        .call-buttons {
+          display: flex;
+          gap: 0.5rem;
+          margin-left: 1rem;
+        }
+        
+        .call-btn, .video-call-btn {
+          display: flex;
+          align-items: center;
+          gap: 0.3rem;
+          padding: 0.3rem 0.7rem;
+          border: none;
+          border-radius: 4px;
+          font-size: 0.8rem;
+          cursor: pointer;
+          transition: all 0.2s ease;
+        }
+        
+        .call-btn {
+          background: #3b82f6;
+          color: white;
+        }
+        
+        .call-btn:hover {
+          background: #2563eb;
+        }
+        
+        .video-call-btn {
+          background: #10b981;
+          color: white;
+        }
+        
+        .video-call-btn:hover {
+          background: #059669;
         }
         
         .prescription-section {
@@ -1016,7 +1195,7 @@ const PatientDashboard = () => {
         .medicines-section {
           margin-top: 1.5rem;
         }
-        
+          
         .medicines-section h5 {
           margin-bottom: 1rem;
           color: #1e293b;
