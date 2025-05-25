@@ -1,31 +1,17 @@
-import React, { createContext, useState } from "react";
+// src/main.jsx
+import React from "react";
 import ReactDOM from "react-dom/client";
-import App from "./App.jsx";
+import App from "./App";
+import { ContextProvider } from "./Context/context.jsx";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
-export const Context = createContext({
-  isAuthenticated: false,
-});
-
-const AppWrapper = () => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [user, setUser] = useState({});
-
-  return (
-    <Context.Provider
-      value={{
-        isAuthenticated,
-        setIsAuthenticated,
-        user,
-        setUser,
-      }}
-    >
-      <App />
-    </Context.Provider>
-  );
-};
-
-ReactDOM.createRoot(document.getElementById("root")).render(
+const root = ReactDOM.createRoot(document.getElementById("root"));
+root.render(
   <React.StrictMode>
-    <AppWrapper />
+    <ContextProvider>
+      <App />
+      <ToastContainer position="top-center" />
+    </ContextProvider>
   </React.StrictMode>
 );

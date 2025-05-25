@@ -100,7 +100,7 @@ const Departments = () => {
       <style jsx>{`
         .departments-section {
           position: relative;
-          padding: 6rem 2rem;
+          padding: 3rem 2rem;
           background: linear-gradient(to bottom right, #f0f4f8, #e2e8f0);
           z-index: 1;
         }
@@ -121,7 +121,7 @@ const Departments = () => {
           text-align: center;
           font-size: 3rem;
           font-weight: 800;
-          margin-bottom: 4rem;
+          margin-bottom: 3rem;
           color: #1e293b;
           background: linear-gradient(to right, #4f46e5, #0ea5e9);
           -webkit-background-clip: text;
@@ -192,9 +192,10 @@ const Departments = () => {
           color: #0f172a;
           font-size: 0.95rem;
           font-weight: 600;
+          justify-content: center;
           padding: 0.6rem 1.2rem;
           border: none;
-          border-radius: 8px;
+          border-radius: 25px;
           cursor: pointer;
           transition: all 0.3s ease;
         }

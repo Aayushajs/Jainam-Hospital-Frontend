@@ -1,12 +1,23 @@
-// Navbar.jsx
-import React, { useContext, useState, useEffect } from "react";
+import React, { useContext, useState, useEffect, useRef } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
-import { Context } from "../main";
+import { Context } from "../Context/context.jsx";
 import styled, { keyframes } from "styled-components";
 import { GiHamburgerMenu } from "react-icons/gi";
 import { IoClose } from "react-icons/io5";
+import { 
+  FaUser, 
+  FaHome, 
+  FaCalendarAlt, 
+  FaInfoCircle, 
+  FaRobot,
+  FaAmbulance,
+  FaSignOutAlt,
+  FaHistory,
+  FaChevronDown,
+  FaChevronUp
+} from "react-icons/fa";
 
 // Animations
 const fadeIn = keyframes`
@@ -82,6 +93,9 @@ const NavLink = styled(Link)`
   font-weight: 500;
   font-size: 1.1rem;
   transition: all 0.3s;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 
   &.active {
     color: #e63946;
@@ -115,40 +129,6 @@ const NavLink = styled(Link)`
   }
 `;
 
-const AboutDropdown = styled.div`
-  position: relative;
-  &:hover .dropdown-content {
-    display: block;
-  }
-`;
-
-const DropdownContent = styled.div`
-  display: none;
-  position: absolute;
-  top: 140%;
-  background: #fff;
-  box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.1);
-  padding: 0.8rem 1.2rem;
-  border-radius: 10px;
-  z-index: 1000;
-  min-width: 180px;
-  font-size: 0.95rem;
-  text-align: left;
-
-  a {
-    display: block;
-    color: #333;
-    padding: 0.4rem 0;
-    text-decoration: none;
-    font-weight: 500;
-    transition: all 0.3s ease;
-
-    &:hover {
-      color: #e63946;
-    }
-  }
-`;
-
 const AuthButton = styled.button`
   padding: 0.6rem 1.3rem;
   border-radius: 25px;
@@ -159,6 +139,9 @@ const AuthButton = styled.button`
   color: ${({ primary }) => (primary ? "#fff" : "#e63946")};
   border: 2px solid #e63946;
   transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 
   &:hover {
     background: ${({ primary }) => (primary ? "#d12f3f" : "#e63946")};
@@ -199,17 +182,7 @@ const Overlay = styled.div`
   transition: all 0.3s ease;
 `;
 
-const ProfileContainer = styled.div`
-  position: relative;
-  margin-left: 1rem;
-
-  &:hover .dropdown {
-    opacity: 1;
-    visibility: visible;
-    transform: translateY(0);
-  }
-`;
-
+// Profile related styled components
 const InitialCircle = styled.div`
   width: 42px;
   height: 42px;
@@ -225,34 +198,108 @@ const InitialCircle = styled.div`
   user-select: none;
 `;
 
+const ProfileToggle = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  position: relative;
+  padding: 0.5rem 0;
+
+  @media (min-width: 769px) {
+    &:hover > div {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+  }
+`;
+
+const ProfileText = styled.span`
+  display: none;
+  @media (max-width: 768px) {
+    display: inline;
+    font-weight: 600;
+  }
+`;
+
+const ProfileContainer = styled.div`
+  position: relative;
+  margin-left: 0rem;
+  margin-right: -2.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+
+  @media (max-width: 768px) {
+    margin-left: 5rem;
+    margin-top: 1rem;
+    order: -1;
+    flex-direction: column;
+    align-items: flex-start;
+    width: 100%;
+  }
+`;
+
 const Dropdown = styled.div`
   position: absolute;
   right: 0;
   top: 130%;
   background: white;
-  border-radius: 10px;
+  border-radius: 7px;
   padding: 1rem;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
   opacity: 0;
-   font-weight: bold;
   visibility: hidden;
   transform: translateY(-10px);
   transition: all 0.3s ease;
   z-index: 1002;
-  min-width: 200px;
-  font-size: 0.95rem;
+  min-width: 250px;
+  font-size: 1rem;
+
+  @media (min-width: 769px) {
+    ${ProfileContainer}:hover & {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+  }
+
+  @media (max-width: 768px) {
+    position: relative;
+    top: 0;
+    right: 3.79rem;
+    opacity: ${({ show }) => (show ? 1 : 0)};
+    visibility: ${({ show }) => (show ? "visible" : "hidden")};
+    height: ${({ show }) => (show ? "auto" : "0")};
+    transform: none;
+     border-radius: 0px;
+    margin-top: 0.3rem;
+    padding: ${({ show }) => (show ? "1rem" : "0")};
+    box-shadow: none;
+    background: rgba(203, 197, 197, 0.03);
+    width: 100%;
+  }
 
   div {
     margin: 0.3rem 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
   }
 
   button {
-    color:rgba(22, 102, 70, 0.67);
+    color: rgba(22, 102, 70, 0.67);
     background: none;
     border: none;
     font-weight: 600;
     cursor: pointer;
     margin-top: 0.6rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    width: 100%;
+    padding: 0.3rem 0;
   }
 `;
 
@@ -260,9 +307,11 @@ const Dropdown = styled.div`
 const Navbar = () => {
   const [show, setShow] = useState(false);
   const [scroll, setScroll] = useState(false);
+  const [showProfileDropdown, setShowProfileDropdown] = useState(false);
   const { isAuthenticated, setIsAuthenticated, user } = useContext(Context);
   const navigate = useNavigate();
   const location = useLocation();
+  const profileRef = useRef(null);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -274,6 +323,7 @@ const Navbar = () => {
 
   useEffect(() => {
     setShow(false);
+    setShowProfileDropdown(false);
   }, [location]);
 
   const handleLogout = async () => {
@@ -291,6 +341,10 @@ const Navbar = () => {
 
   const goToLogin = () => navigate("/login");
 
+  const toggleProfileDropdown = () => {
+    setShowProfileDropdown(!showProfileDropdown);
+  };
+
   return (
     <>
       <NavContainer scroll={scroll}>
@@ -301,26 +355,56 @@ const Navbar = () => {
         </MenuToggle>
 
         <NavLinks show={show}>
-          <NavLink to="/" className={location.pathname === "/" ? "active" : ""}>Home</NavLink>
-          <NavLink to="/appointment" className={location.pathname === "/appointment" ? "active" : ""}>Appointment</NavLink>
-          <NavLink to="/about" className={location.pathname === "/about" ? "active" : ""}>About Us</NavLink>   
-          <NavLink to="/departments" className={location.pathname === "/departments" ? "active" : ""}>AI Assistent</NavLink>
-     
-
+          {/* Navigation links */}
+          <NavLink to="/" className={location.pathname === "/" ? "active" : ""}>
+            <FaHome /> Home
+          </NavLink>
+          <NavLink to="/appointment" className={location.pathname === "/appointment" ? "active" : ""}>
+            <FaCalendarAlt /> Appointment
+          </NavLink>
+          <NavLink to="/about" className={location.pathname === "/about" ? "active" : ""}>
+            <FaInfoCircle /> About Us
+          </NavLink>   
+          <NavLink to="/departments" className={location.pathname === "/departments" ? "active" : ""}>
+            <FaRobot /> AI Assistant
+          </NavLink>
+          <NavLink to="/emergency" className={location.pathname === "/emergency" ? "active" : ""}>
+            <FaAmbulance /> Emergency
+          </NavLink>
           {isAuthenticated ? (
-            <ProfileContainer>
-              <InitialCircle>{user?.firstName?.charAt(0)?.toUpperCase()}</InitialCircle>
-              <Dropdown className="dropdown">
-                <div><strong>{`Welcome Back ${user?.firstName} ${user?.lastName}`}</strong></div>
-                <div style={{ fontSize: "0.85rem", color: "gray" }}>{user?.email}</div>
-                <div><button onClick={() => navigate("/profile")}>My Profile</button></div>
-                 <div><button onClick={() => navigate("/profile")}>Feedback</button></div>
-                 <div><button onClick={() => navigate("/appoinmentpage")}>Appointment History</button></div>
-                <div><button onClick={handleLogout}>Logout</button></div>
+            <ProfileContainer 
+              ref={profileRef}
+              onMouseEnter={() => window.innerWidth > 768 && setShowProfileDropdown(true)}
+              onMouseLeave={() => window.innerWidth > 768 && setShowProfileDropdown(false)}
+            >
+              <ProfileToggle onClick={toggleProfileDropdown}>
+                <InitialCircle>{user?.firstName?.charAt(0)?.toUpperCase()}</InitialCircle>
+                <ProfileText>Profile</ProfileText>
+                {window.innerWidth <= 768 && (showProfileDropdown ? <FaChevronUp size={14} /> : <FaChevronDown size={14} />)}
+              </ProfileToggle>
+              <Dropdown show={showProfileDropdown}>
+                <div>
+                  <FaUser />
+                  <strong>{`${user?.firstName} ${user?.lastName}`}</strong>
+                </div>
+                <div style={{ fontSize: "0.85rem", color: "gray" }}>
+                  {user?.email}
+                </div>
+                <button onClick={() => navigate("/profile")}>
+                  <FaUser /> My Profile
+                </button>
+                <button onClick={() => navigate("/appoinmentpage")}>
+                  <FaHistory /> Appointment History
+                </button>
+                <button onClick={handleLogout}>
+                  <FaSignOutAlt /> Logout
+                </button>
               </Dropdown>
             </ProfileContainer>
           ) : (
-            <AuthButton onClick={goToLogin}>LOGIN</AuthButton>
+            <AuthButton onClick={goToLogin}>
+              <FaUser /> LOGIN
+            </AuthButton>
           )}
         </NavLinks>
       </NavContainer>

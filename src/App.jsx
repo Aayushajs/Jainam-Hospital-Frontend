@@ -1,6 +1,11 @@
-import React, { useContext, useEffect } from "react";
+import React, { useContext } from "react";
 import "./App.css";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { 
+  BrowserRouter as Router, 
+  Routes, 
+  Route, 
+  Navigate 
+} from "react-router-dom";
 import Home from "./Pages/Home";
 import Appointment from "./Pages/Appointment";
 import AboutUs from "./Pages/AboutUs";
@@ -10,11 +15,44 @@ import Footer from "./components/Footer";
 import Navbar from "./components/Navbar";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import axios from "axios";
-import { Context } from "./main";
+import { Context } from "./Context/context.jsx";
+import notfount  from "../public/Animaition/no-records-animation.json"
 import Login from "./Pages/Login";
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import PatientDashboard from "./Pages/Appoinmentpage";
+import Lottie from 'lottie-react'; // Lottie इम्पोर्ट करें
+
+
+const defaultLottieOptions = {
+  loop: true,
+  autoplay: true,
+  animationData:notfount, // 
+  rendererSettings: {
+    preserveAspectRatio: 'xMidYMid slice'
+  }
+};
+
+
+const LoadingSpinner = () => (
+  <div className="flex justify-center items-center h-screen">
+    <Lottie 
+      options={defaultLottieOptions}
+      height={200}
+      width={200}
+    />
+  </div>
+);
+
+const ProtectedRoute = ({ children }) => {
+  const { isAuthenticated, loading } = useContext(Context);
+
+  if (loading) {
+    return <LoadingSpinner />;
+  }
+
+  return isAuthenticated ? children : <Navigate to="/login" replace />;
+};
+
 
 const theme = createTheme({
   palette: {
@@ -31,50 +69,36 @@ const theme = createTheme({
     },
   },
 });
+
+
 const App = () => {
-  const { isAuthenticated, setIsAuthenticated, setUser } =
-    useContext(Context);
-
-  useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const response = await axios.get(
-          "https://jainam-hospital-backend.onrender.com/api/v1/user/patient/me",
-          //"http://localhost:4000/api/v1/user/patient/me",
-          {
-            withCredentials: true,
-            
-            }
-        );
-        setIsAuthenticated(true);
-        setUser(response.data.user);
-      } catch (error) {
-        setIsAuthenticated(false);
-        setUser({});
-      }
-    };
-    fetchUser();
-  }, [isAuthenticated]);
-
   return (
-    <>
-      <ThemeProvider theme={theme}>
+    <ThemeProvider theme={theme}>
       <Router>
         <Navbar />
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/appointment" element={<Appointment />} />
-          <Route path="/appoinmentpage" element={<PatientDashboard />} />
           <Route path="/about" element={<AboutUs />} />
           <Route path="/register" element={<Register />} />
-          <Route path="/profile" element={<ProfilePage />} />
           <Route path="/login" element={<Login />} />
+          
+        
+          <Route path="/profile" element={
+            <ProtectedRoute>
+              <ProfilePage />
+            </ProtectedRoute>
+          } />
+          <Route path="/appoinmentpage" element={
+            <ProtectedRoute>
+              <PatientDashboard />
+            </ProtectedRoute>
+          } />
         </Routes>
         <Footer />
         <ToastContainer position="top-center" />
       </Router>
-      </ThemeProvider>
-    </>
+    </ThemeProvider>
   );
 };
 

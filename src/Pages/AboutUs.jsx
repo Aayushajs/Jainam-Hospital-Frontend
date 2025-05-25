@@ -23,6 +23,7 @@ import {
   Timeline as TimelineIcon
 } from "@mui/icons-material";
 import { Timeline, TimelineItem, TimelineSeparator, TimelineDot, TimelineConnector, TimelineContent } from '@mui/lab';
+import FloatingButton2 from "../components/FloatingButton2";
 
 // Custom styled components
 const SectionContainer = ({ children, bgColor = 'background.default', py = 10 }) => (
@@ -419,6 +420,7 @@ const AboutUs = () => {
         </Container>
       </SectionContainer>
       <FloatingButton />
+      <FloatingButton2 />
     </Box>
   );
 };

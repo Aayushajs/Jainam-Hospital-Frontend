@@ -1,7 +1,7 @@
 import axios from "axios";
 import React, { useContext, useState } from "react";
 import { toast } from "react-toastify";
-import { Context } from "../main";
+import { Context } from "../Context/context.jsx";
 import { Link, Navigate, useNavigate } from "react-router-dom";
 import styled from "styled-components";
 
@@ -200,7 +200,7 @@ const Register = () => {
               onChange={(e) => setPhone(e.target.value)}
               required
             />
-          </div>
+          </div>  
           <div className="input-row">
             <input
               type="text"

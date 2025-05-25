@@ -33,8 +33,10 @@ const floatAnimation = keyframes`
 // Custom styled components
 const GradientPaper = styled(Paper)(({ theme }) => ({
   background: `linear-gradient(145deg, ${theme.palette.background.paper} 0%, ${theme.palette.grey[50]} 100%)`,
-  borderRadius: '24px',
-  boxShadow: '0 20px 40px rgba(0,0,0,0.08)',
+ // borderRadius: '24px',
+ borderBottomRightRadius: '34px',
+ borderTopLeftRadius: '34px',
+   boxShadow: '0 20px 40px rgba(0,0,0,0.08)',
   overflow: 'hidden',
   position: 'relative',
   '&:before': {
@@ -44,7 +46,7 @@ const GradientPaper = styled(Paper)(({ theme }) => ({
     left: 0,
     right: 0,
     height: '4px',
-    background: `linear-gradient(90deg, ${theme.palette.primary.main}, ${theme.palette.secondary.main})`
+   // background: `linear-gradient(90deg, ${theme.palette.primary.main}, ${theme.palette.secondary.main})`
   }
 }));
 
@@ -186,7 +188,7 @@ const MessageForm = () => {
   };
 
   return (
-    <Container maxWidth="md" sx={{ py: 3  }}>
+    <Container  sx={{ py: 3  }}>
       <GradientPaper elevation={0} sx={{ p: { xs: 3, md: 5 } }}>
         <Box textAlign="center" mb={5}>
           <Typography

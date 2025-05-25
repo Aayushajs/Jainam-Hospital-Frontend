@@ -27,8 +27,8 @@ const FloatingButton2 = () => {
           onClick={handleOpen}
           sx={{
             position: "fixed",
-            bottom: 150,
-            right: 50,
+            bottom: 140,
+            right: 30,
             zIndex: 2000,
             backgroundColor: "#3c6e71",
             color: "#fff",

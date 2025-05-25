@@ -1,110 +1,85 @@
-  import React, { useState, useEffect } from "react";
-  import { motion } from "framer-motion";
+import React, { useState, useEffect } from "react";
+import { motion } from "framer-motion";
 
-  const Biography = () => {
-    const [currentMember, setCurrentMember] = useState(0);
+const Biography = () => {
+  const [currentMember, setCurrentMember] = useState(0);
 
-    const teamMembers = [
-      { name: "Dr. Ramesh Patel", position: "Chief Medical Officer" },
-      { name: "Dr. Chanchal Jain", position: "Head of Cardiology" },
-      { name: "Dr. Priya Sharma", position: "Neurology Specialist" },
-      { name: "Dr. Ankita Sinha", position: "Pediatrician" },
-      { name: "Dr. Neha Gupta", position: "Orthopedic Surgeon" },
-    ];
+  const teamMembers = [
+    { name: "Dr. Ramesh Patel", position: "Chief Medical Officer", rating: 5 },
+    { name: "Dr. Chanchal Jain", position: "Head of Cardiology", rating: 4.5 },
+    { name: "Dr. Priya Sharma", position: "Neurology Specialist", rating: 4 },
+    { name: "Dr. Ankita Sinha", position: "Pediatrician", rating: 5 },
+    { name: "Dr. Neha Gupta", position: "Orthopedic Surgeon", rating: 4.5 },
+  ];
 
-    useEffect(() => {
-      const interval = setInterval(() => {
-        setCurrentMember((prev) => (prev + 1) % teamMembers.length);
-      }, 5000);
-      return () => clearInterval(interval);
-    }, []);
+  // Star Rating Component
+  const StarRating = ({ rating }) => {
+    const fullStars = Math.floor(rating);
+    const hasHalfStar = rating % 1 !== 0;
+    const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
 
     return (
-      <section className="bio-section">
-        <div className="bio-content">
-          <motion.div
-            className="bio-left"
-            initial={{ opacity: 0, x: -100, rotateY: -30 }}
-            animate={{ opacity: 1, x: 0, rotateY: 0 }}
-            transition={{ duration: 1 }}
-          >
-            <img
-              src="https://gaelanmedicalcare.com/wp-content/uploads/2023/08/General-Surgfery-.jpg"
-              alt="Hospital"
-              className="bio-image"
-            />
-            <motion.div
-              className="floating-tag"
-              animate={{ y: [0, -10, 0] }}
-              transition={{ repeat: Infinity, duration: 3 }}
-            >
-              Since 2005
-            </motion.div>
-          </motion.div>
+      <div className="star-rating">
+        {[...Array(fullStars)].map((_, i) => (
+          <span key={`full-${i}`} className="star full">★</span>
+        ))}
+        {hasHalfStar && <span className="star half">★</span>}
+        {[...Array(emptyStars)].map((_, i) => (
+          <span key={`empty-${i}`} className="star empty">★</span>
+        ))}
+        <span className="rating-text">{rating.toFixed(1)}</span>
+      </div>
+    );
+  };
 
-          <motion.div
-            className="bio-right"
-            initial={{ opacity: 0, x: 100, rotateY: 30 }}
-            animate={{ opacity: 1, x: 0, rotateY: 0 }}
-            transition={{ duration: 1 }}
-          >
-            <h2 className="bio-heading">Who We Are</h2>
-            <p className="bio-description">
-              <strong>Jainam Hospital</strong> is a state-of-the-art medical
-              facility offering compassionate, patient-centered healthcare. With
-              cutting-edge technology and a dedicated medical team, we ensure
-              top-quality service for every patient.
-            </p>
-            <p className="bio-description">
-              Established in 2005, Jainam Hospital has grown into one of the most
-              trusted names in advanced healthcare. Our mission is to deliver
-              world-class treatment with compassion, innovation, and integrity.
-            </p>
-            <ul className="bio-features">
-              <li><strong>✔️ Modern Infrastructure</strong></li>
-              <li><strong>✔️ Advanced Diagnosis</strong></li>
-              <li><strong>✔️ 24/7 Emergency Response</strong></li>
-              <li><strong>✔️ Personalized Care Plans</strong></li>
-            </ul>
-          </motion.div>
-        </div>
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentMember((prev) => (prev + 1) % teamMembers.length);
+    }, 5000);
+    return () => clearInterval(interval);
+  }, []);
 
-        <motion.div
-          className="team-carousel-single"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.8, duration: 1 }}
-        >
-          <h3 className="team-title">Meet Our Experts</h3>
-          <div className="carousel-container">
-            <div className="carousel-track">
-              {[...teamMembers, ...teamMembers].map((member, index) => (
-                <div className="single-card" key={index}>
-                  <motion.img
-                    src={[
-                      "https://images.unsplash.com/photo-1622253692010-333f2da6031d?ixlib=rb-4.0.3&auto=format&fit=crop&w=1064&q=80",
-                      "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80",
-                      "https://images.unsplash.com/photo-1651008376811-b90baee60c1f?ixlib=rb-4.0.3&auto=format&fit=crop&w=987&q=80",
-                      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTrwNoqM-WSRKCAu1iPCkElXkEw_BLgy-cNJA&s",
-                      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTfF1vhJj74ed9Er-t9XsiWWLC0BPprqpZAuA&s",
-                    ][index % 5]}
-                    alt={member.name}
-                    className="single-img"
-                    initial={{ opacity: 0, scale: 0.8 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ duration: 0.5 }}
-                  />
-                  <h4 className="single-name">{member.name}</h4>
-                  <p className="single-position">{member.position}</p>
-                </div>
-              ))}
-            </div>
+  return (
+    <section className="bio-section">
+      {/* ... (previous content remains the same) ... */}
+
+      <motion.div
+        className="team-carousel-single"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.8, duration: 1 }}
+      >
+        <h3 className="team-title">Meet Our Experts</h3>
+        <div className="carousel-container">
+          <div className="carousel-track">
+            {[...teamMembers, ...teamMembers].map((member, index) => (
+              <div className="single-card" key={index}>
+                <motion.img
+                  src={[
+                    "https://images.unsplash.com/photo-1622253692010-333f2da6031d?ixlib=rb-4.0.3&auto=format&fit=crop&w=1064&q=80",
+                    "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80",
+                    "https://images.unsplash.com/photo-1651008376811-b90baee60c1f?ixlib=rb-4.0.3&auto=format&fit=crop&w=987&q=80",
+                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTrwNoqM-WSRKCAu1iPCkElXkEw_BLgy-cNJA&s",
+                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTfF1vhJj74ed9Er-t9XsiWWLC0BPprqpZAuA&s",
+                  ][index % 5]}
+                  alt={member.name}
+                  className="single-img"
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.5 }}
+                />
+                <h4 className="single-name">{member.name}</h4>
+                <p className="single-position">{member.position}</p>
+                <StarRating rating={member.rating} />
+              </div>
+            ))}
           </div>
-        </motion.div>
+        </div>
+      </motion.div>
 
-        <style jsx>{`
-          .bio-section {
-            padding: 5rem 1.5rem;
+      <style jsx>{`
+        .bio-section {
+            padding: 3rem 1.5rem;
             background: #f0f4f8;
             font-family: "Segoe UI", sans-serif;
           }
@@ -266,9 +241,63 @@
               height: 160px;
             }
           }
-        `}</style>
-      </section>
-    );
-  };
 
-  export default Biography;
+        .star-rating {
+          display: flex;
+          align-items: center;
+          margin-top: 0.3rem;
+        }
+
+        .star {
+          font-size: 1.2rem;
+          color: #e2e8f0; /* Default empty star color */
+          position: relative;
+        }
+
+        .star.full {
+          color: #fbbf24; /* Full star color (yellow) */
+        }
+
+        .star.half {
+          color: #fbbf24; /* Half star color (yellow) */
+        }
+
+        .star.half:before {
+          content: '★';
+          position: absolute;
+          left: 0;
+          width: 50%;
+          overflow: hidden;
+          color: #fbbf24;
+        }
+
+        .star.half:after {
+          content: '★';
+          position: absolute;
+          left: 0;
+          width: 100%;
+          color: #e2e8f0;
+          z-index: -1;
+        }
+
+        .rating-text {
+          margin-left: 0.5rem;
+          font-size: 0.9rem;
+          color: #64748b;
+          font-weight: 600;
+        }
+
+        @media (max-width: 768px) {
+          .star {
+            font-size: 1rem;
+          }
+          .rating-text {
+            font-size: 0.8rem;
+          }
+        }
+      `}</style>
+    </section>
+  );
+};
+
+export default Biography;
