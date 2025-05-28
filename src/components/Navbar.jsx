@@ -16,7 +16,9 @@ import {
   FaSignOutAlt,
   FaHistory,
   FaChevronDown,
-  FaChevronUp
+  FaChevronUp,
+  FaShoppingCart,
+  FaClinicMedical
 } from "react-icons/fa";
 
 // Animations
@@ -37,8 +39,9 @@ const NavContainer = styled.nav`
   align-items: center;
   justify-content: space-between;
   background: ${({ scroll }) => (scroll ? "rgba(255, 255, 255, 0.6)" : "transparent")};
-  backdrop-filter: blur(${({ scroll }) => (scroll ? "25px" : "0")});
-  box-shadow: ${({ scroll }) => scroll ? "0 4px 30px rgba(0, 0, 0, 0.06)" : "none"};
+  backdrop-filter: blur(${({ scroll }) => (scroll ? "18px" : "0")});
+  border: ${({ scroll }) => (scroll ? "1px solid rgba(46, 96, 195, 0.55)" : "none")};
+  box-shadow: ${({ scroll }) => scroll ? "0 4px 30px rgba(48, 130, 201, 0.48)" : "none"};
   border-radius: 50px;
   transition: all 0.3s ease;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -365,10 +368,10 @@ const Navbar = () => {
           <NavLink to="/about" className={location.pathname === "/about" ? "active" : ""}>
             <FaInfoCircle /> About Us
           </NavLink>   
-          <NavLink to="/departments" className={location.pathname === "/departments" ? "active" : ""}>
-            <FaRobot /> AI Assistant
+          <NavLink to="/pharmacy" className={location.pathname === "/pharmacy" ? "active" : ""}>
+            <FaClinicMedical /> pharmacy
           </NavLink>
-          <NavLink to="/emergency" className={location.pathname === "/emergency" ? "active" : ""}>
+          <NavLink to="/EmergencyDashboard" className={location.pathname === "/EmergencyDashboard" ? "active" : ""}>
             <FaAmbulance /> Emergency
           </NavLink>
           {isAuthenticated ? (
@@ -396,6 +399,9 @@ const Navbar = () => {
                 <button onClick={() => navigate("/appoinmentpage")}>
                   <FaHistory /> Appointment History
                 </button>
+                 <button onClick={() => navigate("/Cart")}>
+                <FaShoppingCart /> card
+               </button>
                 <button onClick={handleLogout}>
                   <FaSignOutAlt /> Logout
                 </button>

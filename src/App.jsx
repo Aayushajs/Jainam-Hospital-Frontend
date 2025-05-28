@@ -20,13 +20,24 @@ import notfount  from "../public/Animaition/no-records-animation.json"
 import Login from "./Pages/Login";
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import PatientDashboard from "./Pages/Appoinmentpage";
-import Lottie from 'lottie-react'; // Lottie इम्पोर्ट करें
+import Lottie from 'lottie-react'; 
+import PHome from "../src/Pages/PharmacyPages/Home.jsx";
+import { Container } from '@mui/material'
+
+import Products from '../src/Pages/PharmacyPages/Products'
+import ProductDetail from '../src/Pages/PharmacyPages/ProductDetail'
+import Cart from '../src/Pages/PharmacyPages/Cart'
+import Checkout from '../src/Pages/PharmacyPages/Checkout'
+import OrderHistory from '../src/Pages/PharmacyPages/OrderHistory'
+import TrackOrder from '../src/Pages/PharmacyPages/TrackOrder'
+import AdvanceBooking from '../src/Pages/PharmacyPages/AdvanceBooking'
+import EmergencyDashboard from "./Pages/emrgcy.jsx";
 
 
 const defaultLottieOptions = {
   loop: true,
   autoplay: true,
-  animationData:notfount, // 
+  animationData:notfount, 
   rendererSettings: {
     preserveAspectRatio: 'xMidYMid slice'
   }
@@ -78,20 +89,38 @@ const App = () => {
         <Navbar />
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/appointment" element={<Appointment />} />
           <Route path="/about" element={<AboutUs />} />
           <Route path="/register" element={<Register />} />
           <Route path="/login" element={<Login />} />
           
-        
+          <Route path="/pharmacy" element={<PHome />} />
+         <Route path="/products" element={<Products />} />
+        <Route path="/product/:id" element={<ProductDetail />} />
+        <Route path="/cart" element={<Cart />} />
+        <Route path="/checkout" element={<Checkout />} />
+        <Route path="/orders" element={<OrderHistory />} />
+        <Route path="/track-order" element={<TrackOrder />} />
+        <Route path="/advance-booking" element={<AdvanceBooking />} />
+
           <Route path="/profile" element={
             <ProtectedRoute>
               <ProfilePage />
             </ProtectedRoute>
           } />
+          <Route path="/EmergencyDashboard" element={
+            <ProtectedRoute>
+              <EmergencyDashboard />
+            </ProtectedRoute>
+          } />
           <Route path="/appoinmentpage" element={
             <ProtectedRoute>
               <PatientDashboard />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/appointment" element={
+            <ProtectedRoute>
+              <Appointment />
             </ProtectedRoute>
           } />
         </Routes>
