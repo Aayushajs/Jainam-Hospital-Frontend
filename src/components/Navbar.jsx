@@ -34,7 +34,7 @@ const NavContainer = styled.nav`
   left: 1.5rem;
   right: 1.5rem;
   z-index: 1000;
-  padding: 1.5rem 4.5%;
+  padding: 1.3rem 4.5%;
   display: flex;
   align-items: center;
   justify-content: space-between;

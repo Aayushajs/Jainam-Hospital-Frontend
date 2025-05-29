@@ -1,9 +1,10 @@
 import { Container, Grid, Typography, Box, Button, Stack, Skeleton, Chip, Paper, TextField, InputAdornment, Avatar } from '@mui/material';
-import ProductCard from '../../components/Pharmacy/ProductCard'; // Assuming this exists
-import AdBanner from '../../components/Pharmacy/AdBanner'; // Assuming this exists
+import { useNavigate } from 'react-router-dom'; // Added for navigation
+import ProductCard from '../../components/Pharmacy/ProductCard';
+import AdBanner from '../../components/Pharmacy/AdBanner';
 import { useSelector, useDispatch } from 'react-redux';
-import { getProducts } from '../../store/productSlice'; // Assuming this exists
-import { useEffect } from 'react';
+import { getProducts } from '../../store/productSlice';
+import { useEffect, useState } from 'react'; // Added useState
 import { motion } from 'framer-motion';
 import {
     LocalPharmacy as PharmacyIcon,
@@ -12,15 +13,14 @@ import {
     Star as StarIcon,
     Discount as DiscountIcon,
     LocalHospital as HospitalIcon,
-    Search as SearchIcon, // Added Search Icon
-    Spa as WellnessIcon, // Changed for better visual
-    Face as PersonalCareIcon, // Changed for better visual
-    ArrowForward as ArrowForwardIcon // Added for buttons
+    Search as SearchIcon,
+    Spa as WellnessIcon,
+    Face as PersonalCareIcon,
+    ArrowForward as ArrowForwardIcon
 } from '@mui/icons-material';
 import FloatingButton from '../../components/FloatingButton';
 import FloatingButton2 from '../../components/FloatingButton2';
 
-// --- Placeholder Components (for demonstration if not available) ---
 const PlaceholderProductCard = ({ product }) => (
     <Paper elevation={3} sx={{ p: 2, borderRadius: 3, height: '100%' }}>
         <Skeleton variant="rectangular" height={160} sx={{ borderRadius: 2, mb: 2 }} />
@@ -44,7 +44,7 @@ const PlaceholderAdBanner = () => (
         color: 'white',
         textAlign: 'center',
         p: 4,
-        mb: -8 // Negative margin to overlap with search
+        mb: -8
     }}>
         <motion.div
             initial={{ opacity: 0, y: -20 }}
@@ -61,7 +61,6 @@ const PlaceholderAdBanner = () => (
     </Box>
 );
 
-// --- Section Header Component ---
 const SectionHeader = ({ title, gradient, viewAllLink = "#", color = 'primary' }) => (
     <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 4 }}>
         <Typography variant="h4" component="h2" sx={{
@@ -90,7 +89,7 @@ const SectionHeader = ({ title, gradient, viewAllLink = "#", color = 'primary' }
                 textTransform: 'none',
                 borderRadius: '20px',
                 fontWeight: 600,
-                '&:hover': { background: (theme) => `${theme.palette[color].light}33` } // Faint background on hover
+                '&:hover': { background: (theme) => `${theme.palette[color].light}33` }
             }}
         >
             View All
@@ -98,13 +97,14 @@ const SectionHeader = ({ title, gradient, viewAllLink = "#", color = 'primary' }
     </Stack>
 );
 
-// --- Main Home Component ---
 export default function Home() {
+    const navigate = useNavigate(); // For navigation
     const dispatch = useDispatch();
-    // Use dummy data or actual Redux state
+    const [isLoading, setIsLoading] = useState(true); // Loading state
+    
     const { items: products = [], status = 'loading' } = useSelector((state) => state.products) || { items: [], status: 'loading' };
 
-    // --- Dummy Products for Demo ---
+    // Dummy Products for Demo
     const dummyProducts = [
         { id: 1, name: "Paracetamol 500mg", price: "2.50", image: "https://wellify.in/cdn/shop/products/DigiplexLiquid-100ml_TOP06.jpg?v=1732861765" },
         { id: 2, name: "Vitamin C Effervescent", price: "8.99", image: "https://cdn01.pharmeasy.in/dam/products_otc/J74734/digeplex-digestion-liquid-sugar-free-bottle-of-200ml-1-1707374925.jpg?dim=400x0&dpr=1&q=100" },
@@ -114,25 +114,32 @@ export default function Home() {
         { id: 6, name: "Sunscreen SPF 50", price: "18.75", image: "https://5.imimg.com/data5/SELLER/Default/2023/11/358138409/VO/ZU/BJ/152647523/iycotic-ketoconazole-tablets-250x250.jpeg" },
         { id: 7, name: "Pain Relief Gel", price: "7.80", image: "https://drmeghanapande.com/wp-content/uploads/2021/04/General-Medicine-and-Internal-Medicine.jpg" },
         { id: 8, name: "Face Wash - Neem", price: "6.00", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR25_r1RICAQnR-UgqdOCeT-qNMnHITnkZd2Q&s" },
-          { id: 9, name: "Multivitamin Gummies", price: "15.50", image: "https://www.stanfordchildrens.org/content-public/topic/images/91/384891.jpeg" },
+        { id: 9, name: "Multivitamin Gummies", price: "15.50", image: "https://www.stanfordchildrens.org/content-public/topic/images/91/384891.jpeg" },
         { id: 10, name: "Sunscreen SPF 50", price: "18.75", image: "https://5.imimg.com/data5/SELLER/Default/2023/11/358138409/VO/ZU/BJ/152647523/iycotic-ketoconazole-tablets-250x250.jpeg" },
         { id: 11, name: "Pain Relief Gel", price: "7.80", image: "https://drmeghanapande.com/wp-content/uploads/2021/04/General-Medicine-and-Internal-Medicine.jpg" },
         { id: 12, name: "Face Wash - Neem", price: "6.00", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR25_r1RICAQnR-UgqdOCeT-qNMnHITnkZd2Q&s" },
-          { id: 13, name: "Multivitamin Gummies", price: "15.50", image: "https://www.stanfordchildrens.org/content-public/topic/images/91/384891.jpeg" },
+        { id: 13, name: "Multivitamin Gummies", price: "15.50", image: "https://www.stanfordchildrens.org/content-public/topic/images/91/384891.jpeg" },
         { id: 14, name: "Sunscreen SPF 50", price: "18.75", image: "https://5.imimg.com/data5/SELLER/Default/2023/11/358138409/VO/ZU/BJ/152647523/iycotic-ketoconazole-tablets-250x250.jpeg" },
         { id: 15, name: "Pain Relief Gel", price: "7.80", image: "https://drmeghanapande.com/wp-content/uploads/2021/04/General-Medicine-and-Internal-Medicine.jpg" },
         { id: 16, name: "Face Wash - Neem", price: "6.00", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR25_r1RICAQnR-UgqdOCeT-qNMnHITnkZd2Q&s" },
-          { id: 17, name: "Multivitamin Gummies", price: "15.50", image: "https://www.stanfordchildrens.org/content-public/topic/images/91/384891.jpeg" },
+        { id: 17, name: "Multivitamin Gummies", price: "15.50", image: "https://www.stanfordchildrens.org/content-public/topic/images/91/384891.jpeg" },
         { id: 18, name: "Sunscreen SPF 50", price: "18.75", image: "https://5.imimg.com/data5/SELLER/Default/2023/11/358138409/VO/ZU/BJ/152647523/iycotic-ketoconazole-tablets-250x250.jpeg" },
         { id: 19, name: "Pain Relief Gel", price: "7.80", image: "https://drmeghanapande.com/wp-content/uploads/2021/04/General-Medicine-and-Internal-Medicine.jpg" },
         { id:20, name: "Face Wash - Neem", price: "6.00", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR25_r1RICAQnR-UgqdOCeT-qNMnHITnkZd2Q&s" },
     ];
-    
+
     // Use dummy products if Redux fetch is not working or in 'loading'
     const displayProducts = (products.length > 0 && status !== 'loading') ? products : dummyProducts;
 
     useEffect(() => {
+        // Show skeleton loader for 1 second
+        const timer = setTimeout(() => {
+            setIsLoading(false);
+        }, 100);
+        
         // dispatch(getProducts()); // Uncomment if Redux is set up
+        
+        return () => clearTimeout(timer);
     }, [dispatch]);
 
     // Animation variants
@@ -140,7 +147,7 @@ export default function Home() {
         hidden: { opacity: 0 },
         visible: {
             opacity: 1,
-            transition: { staggerChildren: 0.1, delayChildren: 0.2 }
+            transition: { staggerChildren: 0, delayChildren: 0 }
         }
     };
 
@@ -162,22 +169,55 @@ export default function Home() {
         { name: "Deals", icon: <DiscountIcon />, color: '#9c27b0' }
     ];
 
+    // Handle product click
+    const handleProductClick = (productId) => {
+        navigate(`/`);
+    };
+
     // Use PlaceholderProductCard if ProductCard is not available
-    const CurrentProductCard = ProductCard || PlaceholderProductCard;
+    const CurrentProductCard = ProductCard || (({ product }) => (
+        <Paper 
+            elevation={3} 
+            sx={{ p: 2, borderRadius: 3, height: '100%', cursor: 'pointer' }}
+            onClick={() => handleProductClick(product.id)}
+        >
+            <Box sx={{ height: 160, mb: 2, borderRadius: 2, overflow: 'hidden' }}>
+                <img 
+                    src={product.image} 
+                    alt={product.name} 
+                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                />
+            </Box>
+            <Typography variant="h6" gutterBottom>{product.name}</Typography>
+            <Typography variant="body2" color="text.secondary">Category</Typography>
+            <Typography variant="h5" sx={{ mt: 1, fontWeight: 'bold' }}>${product.price}</Typography>
+            <Button 
+                variant="contained" 
+                fullWidth 
+                sx={{ mt: 2, borderRadius: '20px' }}
+                onClick={(e) => {
+                    e.stopPropagation();
+                    // Add to cart logic here
+                }}
+            >
+                Add to Cart
+            </Button>
+        </Paper>
+    ));
+
     const CurrentAdBanner = AdBanner || PlaceholderAdBanner;
 
     return (
         <Container maxWidth="xl" sx={{ mt: 0, mb: 6, pt: {xs: 8, md: 10}, background: '#f9fafb' }}>
-<Box sx={{py:5, mb:-5}}> <CurrentAdBanner /></Box>
-           
+            <Box sx={{py:5, mb:-5}}> <CurrentAdBanner /></Box>
 
             {/* Search Bar */}
             <Box sx={{
-                mt: 3, // Adjust if AdBanner margin changes
+                mt: 3,
                 display: 'flex',
                 justifyContent: 'center',
                 position: 'relative',
-                zIndex: 10, // Ensure it's above the banner
+                zIndex: 10,
                 mb: 8,
             }}>
                 <Paper elevation={6} sx={{
@@ -191,10 +231,10 @@ export default function Home() {
                 }}>
                     <TextField
                         fullWidth
-                        variant="standard" // No default border/underline
+                        variant="standard"
                         placeholder="Search for medicines, health products & more..."
                         InputProps={{
-                            disableUnderline: true, // Remove underline
+                            disableUnderline: true,
                             startAdornment: (
                                 <InputAdornment position="start" sx={{ pl: 1, color: 'text.disabled' }}>
                                     <SearchIcon />
@@ -282,7 +322,7 @@ export default function Home() {
                                         height: 56,
                                         mb: 1.5,
                                         mx: 'auto',
-                                        backgroundColor: `${category.color}22`, // Light background
+                                        backgroundColor: `${category.color}22`,
                                         color: category.color,
                                         fontSize: 32,
                                         transition: 'all 0.3s ease',
@@ -301,24 +341,26 @@ export default function Home() {
 
             {/* Featured Products */}
             <Box sx={{ my: 10 }}>
-                <SectionHeader 
-                    title="Featured Products" 
+                <SectionHeader
+                    title="Featured Products"
                     gradient="linear-gradient(90deg, #3f51b5, #2196f3)"
                 />
                 <motion.div
                     variants={containerVariants}
                     initial="hidden"
-                    whileInView="visible" // Animate when in view
-                    viewport={{ once: true, amount: 0.2 }} // Trigger once, 20% visible
+                    whileInView="visible"
+                    viewport={{ once: true, amount: 0.2 }}
                 >
                     <Grid container spacing={4}>
-                        {(status === 'loading' ? [...Array(4)] : displayProducts.slice(0, 40)).map((product, index) => (
+                        {(isLoading ? [...Array(20)] : displayProducts.slice(0, 8)).map((product, index) => (
                             <Grid item xs={12} sm={6} md={4} lg={3} key={product?.id || index}>
                                 <motion.div variants={itemVariants} whileHover={{ scale: 1.03 }}>
-                                    {status === 'loading' ? (
+                                    {isLoading ? (
                                         <PlaceholderProductCard product={{}}/>
                                     ) : (
-                                        <CurrentProductCard product={product} />
+                                        <div onClick={() => handleProductClick(product.id)}>
+                                            <CurrentProductCard product={product} />
+                                        </div>
                                     )}
                                 </motion.div>
                             </Grid>
@@ -330,7 +372,7 @@ export default function Home() {
             {/* Health Tips Banner */}
             <Box sx={{
                 my: 10,
-                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                background: 'linear-gradient(135deg, #667eea 0%,rgb(115, 51, 178) 100%)',
                 borderRadius: 4,
                 overflow: 'hidden',
                 color: 'white',
@@ -338,11 +380,11 @@ export default function Home() {
                 boxShadow: 5
             }}>
                 <Grid container alignItems="center">
-                    <Grid item xs={12} md={6} sx={{ p: { xs: 4, md: 6 } }}>
+                    <Grid item xs={12} md={6} sx={{ p: { xs: 4, md: 6} }}>
                         <Chip
                             label="Health Tips"
                             sx={{
-                                backgroundColor: 'rgba(255,255,255,0.25)',
+                                backgroundColor: 'rgba(153, 105, 105, 0.25)',
                                 color: 'white',
                                 mb: 2,
                                 fontWeight: 'bold'
@@ -359,7 +401,7 @@ export default function Home() {
                             variant="contained"
                             sx={{
                                 backgroundColor: 'white',
-                                color: '#667eea', // Match gradient start
+                                color: '#667eea',
                                 borderRadius: '50px',
                                 px: 4,
                                 py: 1.5,
@@ -376,18 +418,18 @@ export default function Home() {
                     <Grid item xs={12} md={6} sx={{
                         display: { xs: 'none', md: 'block' },
                         minHeight: 300,
-                        backgroundImage: 'url(/images/health-tips.jpg)', // Use a relevant, high-quality image
+                        backgroundImage: 'url(/images/health-tips.jpg)',
                         backgroundSize: 'cover',
                         backgroundPosition: 'center',
-                        clipPath: 'polygon(20% 0%, 100% 0%, 100% 100%, 0% 100%)' // Angled edge
+                        clipPath: 'polygon(20% 0%, 100% 0%, 100% 100%, 0% 100%)'
                     }} />
                 </Grid>
             </Box>
 
             {/* Trending Products */}
             <Box sx={{ my: 10 }}>
-                <SectionHeader 
-                    title="Trending Now" 
+                <SectionHeader
+                    title="Trending Now"
                     gradient="linear-gradient(90deg, #ff9800, #ff5722)"
                     color="secondary"
                 />
@@ -398,25 +440,27 @@ export default function Home() {
                     viewport={{ once: true, amount: 0.2 }}
                 >
                     <Grid container spacing={4}>
-                       {(status === 'loading' ? [...Array(4)] : displayProducts.slice(0, 40)).map((product, index) => (
+                       {(isLoading ? [...Array(8)] : displayProducts.slice(0, 8)).map((product, index) => (
                            <Grid item xs={12} sm={6} md={4} lg={3} key={product?.id || index}>
-                                <motion.div variants={itemVariants} whileHover={{ scale: 1.03 }}>
-                                     {status === 'loading' ? (
+                               <motion.div variants={itemVariants} whileHover={{ scale: 1.03 }}>
+                                    {isLoading ? (
                                         <PlaceholderProductCard product={{}}/>
                                     ) : (
-                                        <CurrentProductCard product={product} />
+                                        <div onClick={() => handleProductClick(product.id)}>
+                                            <CurrentProductCard product={product} />
+                                        </div>
                                     )}
-                                </motion.div>
-                            </Grid>
-                        ))}
+                               </motion.div>
+                           </Grid>
+                       ))}
                     </Grid>
                  </motion.div>
             </Box>
 
             {/* Special Offers Section */}
             <Box sx={{ my: 10 }}>
-                <SectionHeader 
-                    title="Hot Deals" 
+                <SectionHeader
+                    title="Hot Deals"
                     gradient="linear-gradient(90deg, #f44336, #e91e63)"
                     color="error"
                 />
@@ -426,11 +470,11 @@ export default function Home() {
                             borderRadius: 4, p: { xs: 3, md: 5 }, height: '100%',
                             display: 'flex', flexDirection: 'column', justifyContent: 'center',
                             background: 'linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%)',
-                            color: '#b71c1c', // Darker red for contrast
+                            color: '#b71c1c',
                             position: 'relative', overflow: 'hidden'
                         }}>
-                             <Chip label="Limited Time" sx={{ 
-                                 backgroundColor: 'rgba(255,255,255,0.4)', color: '#b71c1c', 
+                             <Chip label="Limited Time" sx={{
+                                 backgroundColor: 'rgba(255,255,255,0.4)', color: '#b71c1c',
                                  mb: 2, fontWeight: 600, alignSelf: 'flex-start' }} />
                             <Typography variant="h3" component="h3" sx={{ fontWeight: 700, mb: 1 }}>
                                 Summer Wellness Sale
@@ -449,10 +493,10 @@ export default function Home() {
                                 Shop Now
                             </Button>
                              <Box sx={{
-                                 position: 'absolute', right: -20, bottom: -20, width: '200px', height: '200px',
-                                 backgroundImage: 'url(/images/vitamins.png)', // Use a relevant image
+                                 position: 'absolute', right: -40, bottom: -30, width: '300px', height: '200px',
+                                 backgroundImage: 'url(https://media.istockphoto.com/id/1398967806/photo/plastic-medical-container-and-white-capsule-pills-with-question-mark-on-blue-background-top.jpg?s=612x612&w=0&k=20&c=bEXrjZUjxn8Pnw-_Evz6DWGr6uFNIY8WQ47DVDOAI1k=)',
                                  backgroundSize: 'contain', backgroundRepeat: 'no-repeat',
-                                 opacity: 0.15, transform: 'rotate(-15deg)'
+                                 opacity: 0.15, transform: 'rotate(-31deg)'
                              }} />
                         </Paper>
                     </Grid>
@@ -461,10 +505,10 @@ export default function Home() {
                              borderRadius: 4, p: { xs: 3, md: 5 }, height: '100%',
                              display: 'flex', flexDirection: 'column', justifyContent: 'center',
                              background: 'linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%)',
-                             color: '#1e88e5', // Darker blue for contrast
+                             color: '#1e88e5',
                         }}>
-                             <Chip label="New Arrival" sx={{ 
-                                 backgroundColor: 'rgba(255,255,255,0.4)', color: '#1e88e5', 
+                             <Chip label="New Arrival" sx={{
+                                 backgroundColor: 'rgba(255,255,255,0.4)', color: '#1e88e5',
                                  mb: 2, fontWeight: 600, alignSelf: 'flex-start' }} />
                             <Typography variant="h4" component="h3" sx={{ fontWeight: 700, mb: 1 }}>
                                 Organic Skincare
