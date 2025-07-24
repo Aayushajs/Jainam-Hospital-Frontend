@@ -12,7 +12,7 @@ const FloatingButton = () => {
   const handleOpen = () => {
     setOpen(true);
     setLoading(true);
-    // Immediately show the fallback content since we know iframe won't work
+
     setTimeout(() => setLoading(false), 1500);
   };
 
